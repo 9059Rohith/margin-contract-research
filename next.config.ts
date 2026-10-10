@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  distDir: process.env.E2E_BUILD_DIR ? '.next-e2e' : '.next',
   output: process.env.VERCEL ? undefined : 'standalone',
   serverExternalPackages: ['pdfjs-dist'],
   outputFileTracingIncludes: {'/api/documents': ['./node_modules/pdfjs-dist/standard_fonts/**/*', './node_modules/pdfjs-dist/cmaps/**/*']},

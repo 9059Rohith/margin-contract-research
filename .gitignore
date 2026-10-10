@@ -2,6 +2,7 @@ node_modules/
 .next/
 .next-test/
 .next-dev-test/
+.next-e2e/
 data/
 .env
 .env.local

@@ -18,16 +18,16 @@
 
 | Assignment area | Status | Evidence |
 |---|---|---|
-| PDF/DOCX upload, type rejection, saved library, delete | ✅ Locally verified | `npm run smoke`; browser walkthrough |
+| PDF/DOCX upload, type rejection, saved library, delete | ✅ Locally verified | `npm run smoke`; `npm run test:e2e` for DOCX upload |
 | Text extraction and scanned/no-text PDF rejection | ✅ Locally verified | 6-page PDF, DOCX pair, and no-text PDF in `npm run smoke` |
 | 150-page ingestion and page-120 text access | ✅ Locally verified | `contract-150-pages.pdf` in `npm run smoke` |
 | Quote verification, whitespace/Unicode mapping, wrong-document and amount-tampering rejection | ✅ Unit verified | `tests/quotes.test.ts` |
-| Citation click to exact extracted passage | ✅ Browser verified for DOCX | `docs/screenshots/citation-highlight.png` |
+| Citation click to exact extracted passage | ✅ Browser verified for DOCX | `npm run test:e2e`; `docs/screenshots/citation-highlight.png` |
 | Agentic five-tool loop, malformed-call handling and caps | ⚠️ Mock verified; live provider unverified | `tests/agent-loop.test.ts`, `tests/agent-tools.test.ts` |
 | Streaming answer and Stop with saved partial | ⚠️ Streaming and stop persistence tested with a mocked provider and route test; live browser stop still needs verification | `tests/agent-loop.test.ts`, `tests/chat-stop.test.ts` |
 | Saved chat history | ✅ Locally verified | `npm run smoke`; browser reopen |
 | Multi-document comparative answers | ⚠️ Selection and per-document verification built; live model synthesis unverified | `src/lib/agent/loop.ts` |
-| Clause-level comparison and significance filter | ✅ Locally verified | `tests/compare.test.ts`, `npm run smoke`, browser walkthrough |
+| Clause-level comparison and significance filter | ✅ Locally verified | `tests/compare.test.ts`, `npm run smoke`, `npm run test:e2e` |
 | Cross-page and repeated quote highlighting | ⚠️ Matcher unit tested; full browser flow unverified | `tests/quotes.test.ts` |
 | Original PDF page overlay, OCR, exhaustive map-reduce, exported report | ❌ Not built | See limitations |
 | Public live deployment, GitHub link, 3–5 minute recorded demo | ⚠️ Repository, Vercel interface, and captioned demo delivered; database/model integration pending | [Download the demo](docs/demo.webm); `/api/health` must pass before submission |

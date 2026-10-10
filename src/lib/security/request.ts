@@ -7,7 +7,10 @@ const buckets=new Map<string,{count:number;reset:number}>();
 export function guardMutation(request:Request,kind:'upload'|'blob_token'|'chat'|'compare'|'conversation'){
   const origin=request.headers.get('origin');
   const requestOrigin=new URL(request.url).origin;
-  if(origin && origin!==requestOrigin && origin!==env.APP_ORIGIN)throw new AppError('invalid_origin',403,'This request came from an unexpected site.');
+  const host=request.headers.get('host');
+  let sameHost=false;
+  try{sameHost=Boolean(origin&&host&&new URL(origin).host===host&&new URL(origin).protocol===new URL(request.url).protocol);}catch{/* invalid Origin is rejected below */}
+  if(origin && origin!==requestOrigin && origin!==env.APP_ORIGIN && !sameHost)throw new AppError('invalid_origin',403,'This request came from an unexpected site.');
   const contentType=request.headers.get('content-type')??'';
   if(kind==='upload'?!contentType.startsWith('multipart/form-data'):!contentType.startsWith('application/json'))throw new AppError('invalid_content_type',415,'Unsupported request content type.');
   const ip=request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'local';
