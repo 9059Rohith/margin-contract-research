@@ -41,7 +41,7 @@ Source: `hiring assignment.pdf`, six pages. The quoted requirements below retain
 | D1 | "GitHub repository link." | `https://github.com/9059Rohith/margin-contract-research` | remote content check | Finished |
 | D2 | "Deployed link. A working, live version we can open and use." | Vercel, private Blob, Turso adapter | production `/api/health`, full smoke, direct 5.3 MB browser upload, saved citation click | Finished |
 | D3 | "README containing ... Screenshots ... How to run it locally ... What is finished and what is not" | `README.md` | document review | Finished |
-| D4 | "Demo video (3 to 5 minutes)." | 3:37 narrated production recording `docs/demo.mp4`, `scripts/record-demo.mjs`, `scripts/narrate-demo.py` | Google Drive link with Anyone with the link → Viewer; burned-in and downloadable subtitles; browser-playable `/demo.mp4` | Finished |
+| D4 | "Demo video (3 to 5 minutes). A screen recording of you using the app" showing upload, question, verified quote, highlighted citation, comparison, and Part C | 3:37 production browser recording `docs/demo.mp4`, `scripts/record-demo.mjs`, `scripts/narrate-demo.py` | Public Google Drive and `/demo.mp4`; all requested scenes are shown with narration and subtitles. The browser interaction was scripted, so a reviewer could interpret "you using the app" as requiring a manual candidate-operated recording. | Delivered; wording risk |
 | D5 | "A short note (half a page) covering ..." | `docs/NOTE.md` | document review | Finished |
 
 ## Traceability rule

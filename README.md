@@ -26,7 +26,7 @@ The screenshots show actual application states from synthetic fixtures. The prev
 
 ## Assignment coverage
 
-The supplied six-page assignment asks for document handling, grounded research, the optional advanced features, an agentic loop, and five submission artifacts. The [traceability matrix](docs/REQUIREMENTS.md) quotes every individual requirement and links it to implementation and verification. This table is the short route through it:
+The supplied six-page assignment asks for document handling, grounded research, required advanced features, one Part C challenge, and five submission artifacts. The [traceability matrix](docs/REQUIREMENTS.md) quotes every individual requirement and links it to implementation and verification. This table is the short route through it:
 
 | Area | What is implemented | How it was checked |
 |---|---|---|
@@ -39,7 +39,7 @@ The supplied six-page assignment asks for document handling, grounded research, 
 | Agentic research | Multi-round model/tool loop, five read-only tools, live activity events, malformed-call handling, round/token/time caps, final quote verification | Scripted provider tests and live tool activity |
 | Submission | Public GitHub repository, live Vercel app, detailed README, 3:37 narrated demo, half-page note | Links at the top of this page and [production log](docs/LIVE_VERIFICATION.md) |
 
-All assignment rows in the traceability matrix are marked **Finished** with named evidence. This does not mean the application has been proven on every contract or provider. OCR, exhaustive map-reduce research, and an exported report are additional improvements from the separate build brief and remain unbuilt; see [Known limits](#known-limits-and-next-improvements).
+All software feature rows in the traceability matrix are marked **Finished** with named evidence. The demo is delivered, but its browser interaction was scripted; the PDF's phrase “you using the app” may be interpreted by a reviewer as requiring a manually operated recording. The application has not been proven on every contract or provider. OCR, exhaustive map-reduce research, and an exported report are additional improvements from the separate build brief and remain unbuilt; see [Known limits](#known-limits-and-next-improvements).
 
 ## Product walkthrough
 
