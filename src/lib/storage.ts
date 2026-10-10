@@ -23,6 +23,26 @@ export async function readStoredFile(location:string):Promise<Buffer> {
   return fs.readFile(location);
 }
 
+export async function readStoredFileRange(location:string,start:number,end:number):Promise<Buffer> {
+  if (/^https:\/\//.test(location)) {
+    const result=await get(location,{access:'private',headers:{Range:`bytes=${start}-${end}`}});
+    if(result?.statusCode!==200)throw new Error('Stored document is unavailable.');
+    const bytes=Buffer.from(await new Response(result.stream).arrayBuffer());
+    return result.headers.has('content-range') ? bytes : bytes.subarray(start,end+1);
+  }
+  const file=await fs.open(location,'r');
+  try {
+    const bytes=Buffer.alloc(end-start+1);
+    let done=0;
+    while(done<bytes.length){
+      const result=await file.read(bytes,done,bytes.length-done,start+done);
+      if(!result.bytesRead)throw new Error('Stored document ended unexpectedly.');
+      done+=result.bytesRead;
+    }
+    return bytes;
+  } finally { await file.close(); }
+}
+
 export async function removeStoredFile(location:string):Promise<void> {
   try {
     if (/^https:\/\//.test(location))await del(location);

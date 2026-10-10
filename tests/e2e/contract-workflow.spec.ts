@@ -53,6 +53,12 @@ test('cross-page and repeated quotes open the correct passages',async({page})=>{
   await expect(page.getByRole('button',{name:'Cross-page evidence'})).toBeVisible();
   await page.getByRole('button',{name:'Cross-page evidence'}).click();
   await page.locator('.evidence-card').click();
+  await expect(page.getByRole('button',{name:'Original PDF'})).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('.pdf-canvas-page')).toHaveCount(2);
+  await expect(page.locator('.pdf-canvas-page canvas').first()).toBeVisible();
+  await expect(page.locator('.pdf-canvas-page').first().locator('.pdf-citation-highlight').first()).toBeVisible();
+  await expect(page.locator('.pdf-canvas-page').nth(1).locator('.pdf-citation-highlight').first()).toBeVisible();
+  await page.getByRole('button',{name:'Extracted text'}).click();
   await expect(page.locator('mark[data-citation-target="true"]')).toHaveCount(2);
   const marked=await page.locator('mark[data-citation-target="true"]').allTextContents();
   expect(marked.join(' ').replace(/\s+/g,' ').trim()).toBe(quote);
@@ -61,4 +67,7 @@ test('cross-page and repeated quotes open the correct passages',async({page})=>{
   await expect(page.locator('.page-controls')).toContainText('3 / 3');
   await expect(page.locator('mark[data-citation-target="true"]')).toHaveCount(1);
   await expect(page.locator('mark[data-citation-target="true"]')).toHaveText(quote);
+  await page.getByRole('button',{name:'Original PDF'}).click();
+  await expect(page.locator('.pdf-canvas-page')).toHaveCount(1);
+  await expect(page.locator('.pdf-citation-highlight').first()).toBeVisible();
 });
