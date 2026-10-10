@@ -2,64 +2,84 @@ import { chromium } from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const base=process.env.SMOKE_BASE_URL||'http://localhost:3000';
-const out=path.resolve('docs/demo.webm');
-const browser=await chromium.launch({headless:true});
-const context=await browser.newContext({
-  viewport:{width:1440,height:900},deviceScaleFactor:1,
-  recordVideo:{dir:path.resolve('tmp/demo-video'),size:{width:1440,height:900}},
+const base = process.env.SMOKE_BASE_URL || 'http://localhost:3000';
+const out = path.resolve('docs/demo.webm');
+const started = Date.now();
+const browser = await chromium.launch({ headless: true });
+const context = await browser.newContext({
+  viewport: { width: 1440, height: 900 },
+  deviceScaleFactor: 1,
+  recordVideo: { dir: path.resolve('tmp/demo-video'), size: { width: 1440, height: 900 } },
 });
-const page=await context.newPage();
-let empty=true;
-await page.route('**/api/documents',route=>empty?route.fulfill({status:200,contentType:'application/json',body:'{"documents":[]}'}):route.continue());
-await page.goto(base,{waitUntil:'networkidle'});
-await page.addStyleTag({content:'nextjs-portal{display:none!important}'});
-await page.evaluate(()=>{
-  const caption=document.createElement('div');
-  caption.id='demo-caption';
-  caption.style.cssText='position:fixed;z-index:1000;left:50%;bottom:18px;transform:translateX(-50%);max-width:880px;padding:12px 20px;border-radius:10px;background:rgba(12,27,51,.94);color:#fff;font:600 18px/1.35 Arial,sans-serif;text-align:center;box-shadow:0 6px 22px #0003;pointer-events:none';
-  document.body.append(caption);
-});
-async function scene(text,ms){await page.evaluate(t=>{document.querySelector('#demo-caption').textContent=t;},text);await page.waitForTimeout(ms);}
-await scene('Margin · Contract intelligence, grounded in evidence',9000);
-await scene('A calm three-panel workspace: library, faithful text reader, and research desk.',12000);
-empty=false;
-await page.reload({waitUntil:'networkidle'});
-await page.evaluate(()=>{
-  const caption=document.createElement('div');caption.id='demo-caption';
-  caption.style.cssText='position:fixed;z-index:1000;left:50%;bottom:18px;transform:translateX(-50%);max-width:880px;padding:12px 20px;border-radius:10px;background:rgba(12,27,51,.94);color:#fff;font:600 18px/1.35 Arial,sans-serif;text-align:center;box-shadow:0 6px 22px #0003;pointer-events:none';document.body.append(caption);
-});
-await page.getByRole('button',{name:'msa-v1.docx 1 sections'}).click();
-await scene('PDF and DOCX files stay in a saved library. Extraction status and failures are visible.',17000);
-await page.locator('#upload-input').setInputFiles('tests/fixtures/not-a-contract.txt');
-await page.getByRole('alert').waitFor();
-await scene('Unsupported files receive a clear inline error; scanned PDFs with no text are marked failed.',13000);
-await page.getByRole('textbox',{name:'Ask a question'}).fill('What is the liability cap?');
-await scene('Ask a question in plain language. This recording has no provider key, so the fallback is explicitly labelled.',9000);
-await page.getByRole('button',{name:'Send question'}).click();
-const evidence=page.getByRole('button',{name:/msa-v1.docx Verified Page 1 Go to passage/}).last();
-await evidence.waitFor({timeout:15000});
-await scene('Evidence cards appear only after the quoted text is found in the attributed source.',18000);
-await evidence.click();
-await page.locator('mark[data-citation-target="true"]').first().waitFor();
-await page.locator('mark[data-citation-target="true"]').first().scrollIntoViewIfNeeded();
-await scene('Click a verified citation to scroll to and highlight the exact passage.',19000);
-await page.getByRole('button',{name:'contract-150-pages.pdf 150 pages'}).click();
-await scene('A 150-page PDF is indexed and can be opened page by page. The smoke test reads page 120.',18000);
-await page.getByRole('button',{name:'msa-v1.docx 1 sections'}).click();
-await scene('Research history is saved with the document and can be reopened.',12000);
-await page.getByRole('button',{name:'Select msa-v1.docx for multiple document research'}).click();
-await page.getByRole('button',{name:'Select msa-v2.docx for multiple document research'}).click();
-await scene('Select several documents for one research scope, or compare two versions.',15000);
-await page.getByRole('button',{name:/Compare documents/}).first().click();
-await page.getByText('Executive summary').waitFor();
-await scene('Clause-level comparison aligns the versions and ranks substantive changes.',16000);
-await page.getByRole('button',{name:/1 high/i}).click();
-await scene('High significance: liability cap changed from AED 100,000 to AED 1,000,000.',18000);
-await scene('The before and after wording is shown side by side with verified source links.',14000);
-await scene('Current limits: OCR and original-page PDF overlays are not implemented. Live model research needs an API key.',14000);
-await context.close();
-await browser.close();
-await fs.mkdir(path.dirname(out),{recursive:true});
-await fs.copyFile(await page.video().path(),out);
-console.log(`Saved ${out}`);
+const page = await context.newPage();
+
+function caption(text) {
+  return page.evaluate(value => {
+    let element = document.querySelector('#demo-caption');
+    if (!element) {
+      element = document.createElement('div');
+      element.id = 'demo-caption';
+      element.style.cssText = 'position:fixed;z-index:1000;left:50%;bottom:18px;transform:translateX(-50%);max-width:880px;padding:12px 20px;border-radius:10px;background:rgba(12,27,51,.94);color:#fff;font:600 18px/1.35 Arial,sans-serif;text-align:center;box-shadow:0 6px 22px #0003;pointer-events:none';
+      document.body.append(element);
+    }
+    element.textContent = value;
+  }, text);
+}
+async function scene(text, ms) { await caption(text); await page.waitForTimeout(ms); }
+async function upload(name) {
+  await page.locator('#upload-input').setInputFiles(path.resolve('tests/fixtures', name));
+  await page.getByRole('heading', { name }).waitFor();
+  await page.locator('.reader-header .status-badge.ready').waitFor({ timeout: 90000 });
+}
+
+try {
+  await page.goto(base, { waitUntil: 'networkidle' });
+  await scene('Margin · Contract intelligence, grounded in evidence', 8000);
+  await scene('Upload PDF or DOCX contracts into a saved library. Processing and errors remain visible.', 9000);
+  await upload('msa-v1.docx');
+  await scene('The first contract is extracted and ready to research.', 12000);
+
+  await page.getByRole('textbox', { name: 'Ask a question' }).fill('What is the liability cap?');
+  await scene('Ask a natural-language question. The live model researches the document through read-only tools.', 8000);
+  await page.getByRole('button', { name: 'Send question' }).click();
+  await caption('Agentic research streams its search and reading steps while the answer is prepared.');
+  const evidence = page.locator('.evidence-card').last();
+  await evidence.waitFor({ timeout: 90000 });
+  await scene('A quote appears as Verified only after the application locates it in this exact document.', 16000);
+  await evidence.click();
+  await page.locator('mark[data-citation-target="true"]').first().waitFor();
+  await scene('Clicking the evidence opens and highlights the cited passage.', 16000);
+
+  await upload('cross-page-duplicate.pdf');
+  await page.locator('.pdf-canvas-page canvas').first().waitFor({ timeout: 90000 });
+  await scene('PDFs now open on their original rendered pages, with an extracted-text option beside them.', 17000);
+  await page.getByRole('button', { name: 'Next page' }).click();
+  await page.locator('.pdf-canvas-page canvas').first().waitFor();
+  await scene('Verified citation offsets map onto PDF text positions; cross-page and repeated quotes are covered by browser tests.', 14000);
+
+  await upload('msa-v2.docx');
+  await page.getByRole('button', { name: 'Select msa-v1.docx for multiple document research' }).last().click();
+  await page.getByRole('button', { name: 'Select msa-v2.docx for multiple document research' }).last().click();
+  await scene('Select two versions to compare obligations clause by clause.', 12000);
+  await page.getByRole('button', { name: 'Compare these versions' }).click();
+  await page.getByRole('dialog', { name: 'Document comparison' }).waitFor();
+  await scene('The comparison ranks substantive changes, including the liability cap moving from AED 100,000 to AED 1,000,000.', 18000);
+  await page.getByRole('button', { name: /1 high/i }).click();
+  await scene('Filter to high-significance changes and inspect the before and after wording.', 16000);
+  await scene('Part C: the bounded multi-round research loop shows each tool step and verifies final quotes.', 13000);
+  await scene('Known limits: scanned PDFs need OCR; unusual PDF text layouts fall back to a clearly labelled extracted-text view.', 15000);
+
+  const remaining = Math.max(0, 195000 - (Date.now() - started));
+  if (remaining) await scene('Margin · Live app, source code, setup instructions, and engineering note are linked in the README.', remaining);
+  const duration = Math.round((Date.now() - started) / 1000);
+  if (duration > 300) throw new Error(`Demo exceeded five minutes: ${duration}s`);
+  await context.close();
+  await browser.close();
+  await fs.mkdir(path.dirname(out), { recursive: true });
+  await fs.copyFile(await page.video().path(), out);
+  console.log(`Saved ${out} (${duration}s)`);
+} catch (error) {
+  await context.close();
+  await browser.close();
+  throw error;
+}

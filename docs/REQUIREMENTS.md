@@ -21,8 +21,8 @@ Source: `hiring assignment.pdf`, six pages. The quoted requirements below retain
 | A15 | "If the answer is not in the document, the app must say so instead of inventing one." | answer sanitizer and coverage guard | production 150-page negative question; unit test | Finished |
 | A16 | "A 150-page contract must work." | PDF extraction/page cap, FTS chunks | large fixture | Finished |
 | A17 | "if your app only read part of a document, it must not answer as though it read all of it." | coverage read ranges, negative claim guard | production 150-page negative question; agent test | Finished |
-| B5 | "Clicking a quote in an answer opens the document, scrolls to that passage and highlights it." | `Reader.tsx` | `tests/e2e/contract-workflow.spec.ts` | Finished |
-| B5a | "Handle quotes that span multiple lines, cross a page break, or appear more than once." | matcher segments, occurrence navigator | quote unit test; browser test spanning pages 1–2 and repeated on page 3 | Finished |
+| B5 | "Clicking a quote in an answer opens the document, scrolls to that passage and highlights it." | `Reader.tsx`, `PdfViewer.tsx`, private PDF source route | local browser test on rendered PDF and production DOCX quote | Finished |
+| B5a | "Handle quotes that span multiple lines, cross a page break, or appear more than once." | PDF.js text layer mapping, matcher segments, occurrence navigator | browser test highlights original PDF pages 1–2 and the repeated occurrence on page 3 | Finished |
 | B6 | "The user selects several documents and asks one question across all of them." | library selection, multi scope | production two-document smoke | Finished |
 | B6a | "Each quote identifies which document it came from." | citation schema/card | browser walkthrough | Finished |
 | B6b | "The answer compares across documents rather than listing separate answers." | multi scope prompt and grounded comparison fallback | production smoke asserts both cap amounts | Finished |
@@ -41,7 +41,7 @@ Source: `hiring assignment.pdf`, six pages. The quoted requirements below retain
 | D1 | "GitHub repository link." | `https://github.com/9059Rohith/margin-contract-research` | remote content check | Finished |
 | D2 | "Deployed link. A working, live version we can open and use." | Vercel, private Blob, Turso adapter | production `/api/health`, full smoke, direct 5.3 MB browser upload, saved citation click | Finished |
 | D3 | "README containing ... Screenshots ... How to run it locally ... What is finished and what is not" | `README.md` | document review | Finished |
-| D4 | "Demo video (3 to 5 minutes)." | `docs/demo.webm`, `scripts/record-demo.mjs` | captioned production recording | Finished |
+| D4 | "Demo video (3 to 5 minutes)." | 3:15 live model-backed `docs/demo.webm`, `scripts/record-demo.mjs` | browser-playable `/demo.webm`; named Loom/Drive/YouTube host not yet connected | Partial: host format |
 | D5 | "A short note (half a page) covering ..." | `docs/NOTE.md` | document review | Finished |
 
 ## Traceability rule

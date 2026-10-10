@@ -10,9 +10,9 @@
 |---|---|
 | ![Upload screen](docs/screenshots/upload-empty.png) | ![Verified quote in chat](docs/screenshots/chat-verified.png) |
 
-| Citation highlighting | Clause comparison |
-|---|---|
-| ![Highlighted passage in the live Vercel app](docs/screenshots/live-citation.png) | ![Significance-ranked comparison](docs/screenshots/comparison.png) |
+| Original PDF page | Citation highlighting | Clause comparison |
+|---|---|---|
+| ![Rendered original PDF page in the live Vercel app](docs/screenshots/pdf-original.png) | ![Highlighted passage in the live Vercel app](docs/screenshots/live-citation.png) | ![Significance-ranked comparison](docs/screenshots/comparison.png) |
 
 ## What is finished
 
@@ -20,23 +20,23 @@
 |---|---|---|
 | PDF/DOCX upload, type rejection, saved library, delete | ✅ Live verified | Production smoke, browser upload and delete, local browser test |
 | Text extraction and scanned/no-text PDF rejection | ✅ Live verified | 6-page PDF, DOCX pair, and no-text PDF in production smoke |
-| 150-page ingestion and page-120 text access | ✅ Live verified | Production smoke; 5.3 MB direct browser upload |
+| 150-page ingestion, page-120 text access, and original PDF rendering | ✅ Live verified | Production smoke; a 5.3 MB direct browser upload rendered from six private chunks |
 | Quote verification, whitespace/Unicode mapping, wrong-document and amount-tampering rejection | ✅ Unit verified | `tests/quotes.test.ts` |
-| Citation click to exact extracted passage | ✅ Live browser verified for DOCX | Saved quote opened and highlighted the exact passage; local browser test |
+| Citation click to rendered PDF passage or extracted DOCX text | ✅ Browser verified | Cross-page rendered PDF highlights and repeated-occurrence navigation in `npm run test:e2e`; saved DOCX quote opened in production |
 | Agentic five-tool loop, malformed-call handling and caps | ✅ Live loop and mock verified | Production chat showed multiple read-only tool rounds; endless-loop test enforces the cap and disclosure |
 | Streaming answer and Stop with saved partial | ✅ Live browser verified | Stopped a streaming draft and reopened it after a reload; `tests/chat-stop.test.ts` |
 | Saved chat history | ✅ Live verified | Production smoke and browser reopen |
 | Multi-document comparative answers | ✅ Live verified for two DOCX versions | Production smoke requires both amounts and a verified quote from each document |
 | Clause-level comparison and significance filter | ✅ Live verified | Production smoke flags AED 100,000 → AED 1,000,000 as High; browser test |
-| Cross-page and repeated quote highlighting | ✅ Browser verified | `tests/quotes.test.ts`; `npm run test:e2e` checks pages 1–2 and a repeated occurrence on page 3 |
-| Original PDF page overlay, OCR, exhaustive map-reduce, exported report | ❌ Not built | See limitations |
-| Public live deployment, GitHub link, 3–5 minute recorded demo | ✅ Live URL and existing 3:27 captioned demo | Production `/api/health` and smoke passed; [download the demo](docs/demo.webm) |
+| Cross-page and repeated quote highlighting | ✅ Browser verified | `tests/quotes.test.ts`; `npm run test:e2e` checks rendered PDF pages 1–2 and a repeated occurrence on page 3 |
+| OCR, exhaustive map-reduce, exported report | ❌ Not built (optional extras or future work) | See limitations |
+| Public live deployment, GitHub link, 3–5 minute recorded demo | ✅ Live app and 3:15 model-backed recording | [Watch the demo](https://margin-contract-research.vercel.app/demo.webm); production `/api/health` and smoke passed |
 
 The complete requirement mapping is in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md). The status table intentionally distinguishes local, mock, and live verification.
 
 [Production verification log](docs/LIVE_VERIFICATION.md) records the checks run against the public URL.
 
-[Download the 3:27 captioned walkthrough](docs/demo.webm). It was recorded before the live model key was configured, so the chat segment shows the extractive fallback. GitHub stores the video but may require downloading it rather than playing it inline.
+[Watch the 3:15 captioned walkthrough](https://margin-contract-research.vercel.app/demo.webm), captured from the live app with the configured model. A [downloadable copy](docs/demo.webm) is also in the repository. The public video is hosted with the app; the assignment's named video hosts are Loom, Google Drive, or unlisted YouTube.
 
 ## How it works
 
@@ -104,7 +104,7 @@ The production Vercel project currently has the private Blob store, Turso databa
 
 The API validates file content and size, stores uploads under UUID filenames, checks browser origins, rate limits mutations, and renders document/model text as React text or sanitized Markdown. The five agent tools are read-only and scoped to selected documents. `npm audit --omit=dev` reported **0 production dependency vulnerabilities** on the tested lockfile. This is a single-user assignment app without accounts or tenant isolation; avoid uploading confidential contracts to its public URL.
 
-Known limits: no OCR; no original PDF canvas overlay; partial scans are not identified page by page; DOCX tables and numbering can differ from Word's layout; FTS5 retrieval is not an exhaustive search; quote verification can reject true quotes when extraction loses characters; a repeated quote may be ambiguous; and comparison alignment/significance are heuristics. The live model was tested against the supplied fixtures and can still vary on unseen contracts. Invalid model output falls back to limited verified extracts. Stopped drafts are saved before quote verification and are explicitly labelled unverified.
+Known limits: no OCR; unusual PDF text layouts can fail exact visual mapping, in which case the app labels the fallback to the verified extracted-text view; partial scans are not identified page by page; DOCX tables and numbering can differ from Word's layout; FTS5 retrieval is not an exhaustive search; quote verification can reject true quotes when extraction loses characters; a repeated quote may be ambiguous; and comparison alignment/significance are heuristics. The live model was tested against the supplied fixtures and can still vary on unseen contracts. Invalid model output falls back to limited verified extracts. Stopped drafts are saved before quote verification and are explicitly labelled unverified.
 
 See [engineering decisions](docs/DECISIONS.md), [architecture](docs/ARCHITECTURE.md), [API](docs/API.md), [half-page note](docs/NOTE.md), and [recording plan](docs/DEMO_SCRIPT.md).
 
