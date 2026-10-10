@@ -62,7 +62,7 @@ export function sanitizeAnswer(answer:string,citations:Citation[],coverage:Cover
     return true;
   }).join(' ');
   if(!verified.length && status==='answered')return coverage.coverage_pct<100?'I could not verify an answer in the passages examined. The document has not been read in full.':'I could not find a verifiable answer in this document.';
-  if(!content.trim())return 'I could not verify a supported answer from this document.';
+  if(!content.replace(/\[[A-Za-z0-9_-]+\]/g,'').replace(/[\s*_#.,;:()]/g,'').trim())return 'I could not verify a supported answer from this document.';
   if((status==='not_found_in_document'||/\b(?:no clause|does not contain|is silent on)\b/i.test(content)) && coverage.coverage_pct<100) {
     return 'I did not find this in the passages examined. I cannot confirm it is absent from the full document.';
   }
@@ -205,7 +205,9 @@ export async function research(question:string,docIds:string[],emit:Event,signal
   const canonical=canonicalizeQuoteIds(parsed.data.answer_markdown,parsed.data.quotes);
   const citations=await verifyCitations(canonical.quotes,docIds);
   const sanitized=sanitizeAnswer(canonical.answer,citations,coverage(),parsed.data.answer_status);
-  const content=sanitized==='I could not verify a supported answer from this document.'?verifiedEvidenceFallback(citations,docIds):sanitized;
+  const citedIds=new Set([...sanitized.matchAll(/\[([A-Za-z0-9_-]+)\]/g)].map(match=>match[1]));
+  const comparesAll=docIds.length===1||docIds.every(id=>citations.some(c=>c.docId===id&&c.result.verified&&citedIds.has(c.id)));
+  const content=!comparesAll||sanitized==='I could not verify a supported answer from this document.'?verifiedEvidenceFallback(citations,docIds):sanitized;
   emit({type:'replace',text:content});
   return {content,citations,coverage:coverage(),status:'complete'};
 }
