@@ -30,11 +30,11 @@
 | Clause-level comparison and significance filter | ✅ Locally verified | `tests/compare.test.ts`, `npm run smoke`, browser walkthrough |
 | Cross-page and repeated quote highlighting | ⚠️ Matcher unit tested; full browser flow unverified | `tests/quotes.test.ts` |
 | Original PDF page overlay, OCR, exhaustive map-reduce, exported report | ❌ Not built | See limitations |
-| Public live deployment, GitHub link, 3–5 minute recorded demo | ⚠️ Repository and captioned demo delivered; deployment blocked | [Watch the demo](docs/demo.webm); Railway workspace restriction |
+| Public live deployment, GitHub link, 3–5 minute recorded demo | ⚠️ Repository and captioned demo delivered; deployment blocked | [Download the demo](docs/demo.webm); Railway workspace restriction |
 
 The complete requirement mapping is in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md). The status table intentionally distinguishes local, mock, and live verification.
 
-[Watch the 3½-minute captioned walkthrough](docs/demo.webm). It uses the production build and explicitly labels the no-key chat fallback.
+[Download the 3:27 captioned walkthrough](docs/demo.webm). It uses the production build and explicitly labels the no-key chat fallback. GitHub stores the video but may require downloading it rather than playing it inline.
 
 ## How it works
 
