@@ -4,6 +4,10 @@ import path from 'node:path';
 import { env } from '@/lib/env';
 import { removeStoredFile } from '@/lib/storage';
 
+if (process.env.VERCEL && !process.env.TURSO_DATABASE_URL) {
+  throw new Error('TURSO_DATABASE_URL must be configured for Vercel.');
+}
+
 const localDir = path.resolve(env.DATA_DIR);
 if (!process.env.TURSO_DATABASE_URL) fs.mkdirSync(localDir, { recursive: true });
 const client = createClient({
