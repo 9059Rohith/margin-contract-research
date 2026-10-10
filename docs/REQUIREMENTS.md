@@ -21,7 +21,7 @@ Source: `hiring assignment.pdf`, six pages. The quoted requirements below retain
 | A15 | "If the answer is not in the document, the app must say so instead of inventing one." | answer sanitizer and coverage guard | production 150-page negative question; unit test | Finished |
 | A16 | "A 150-page contract must work." | PDF extraction/page cap, FTS chunks | large fixture | Finished |
 | A17 | "if your app only read part of a document, it must not answer as though it read all of it." | coverage read ranges, negative claim guard | production 150-page negative question; agent test | Finished |
-| B5 | "Clicking a quote in an answer opens the document, scrolls to that passage and highlights it." | `Reader.tsx`, `PdfViewer.tsx`, private PDF source route | local browser test on rendered PDF and production DOCX quote | Finished |
+| B5 | "Clicking a quote in an answer opens the document, scrolls to that passage and highlights it." | `Reader.tsx`, `PdfViewer.tsx`, private PDF source route | production live-model quote opened on rendered PDF; production DOCX and local browser checks | Finished |
 | B5a | "Handle quotes that span multiple lines, cross a page break, or appear more than once." | PDF.js text layer mapping, matcher segments, occurrence navigator | browser test highlights original PDF pages 1–2 and the repeated occurrence on page 3 | Finished |
 | B6 | "The user selects several documents and asks one question across all of them." | library selection, multi scope | production two-document smoke | Finished |
 | B6a | "Each quote identifies which document it came from." | citation schema/card | browser walkthrough | Finished |

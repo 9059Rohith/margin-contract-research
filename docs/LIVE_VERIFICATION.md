@@ -16,6 +16,7 @@ The Vercel project has a private Blob store, a Turso database, and a sensitive m
 
 - A 5.3 MB synthetic PDF uploaded through the direct private Blob route and reached Ready with 150 pages.
 - After the original-page viewer deployment, a fresh 5.3 MB, 150-page PDF uploaded on production and its original first page rendered through six private source chunks with no browser error. The test document was deleted afterward.
+- A live model question about the indemnity provision returned a verified quote, and clicking it highlighted the corresponding words on the original rendered PDF page. This short fixture triggered the app's explicitly labelled verified-extract fallback for synthesis. The production screenshot is [`screenshots/pdf-citation.png`](screenshots/pdf-citation.png); the test PDF was deleted afterward.
 - A saved verified citation opened the correct DOCX passage and highlighted its exact text.
 - The verified production view is captured in [`screenshots/live-citation.png`](screenshots/live-citation.png).
 - The browser showed live research tool activity and streamed answer text. Stop kept a partial draft, which reopened after a full page reload. Stopped drafts are labelled unverified because the final quote check has not run.

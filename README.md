@@ -12,7 +12,7 @@
 
 | Original PDF page | Citation highlighting | Clause comparison |
 |---|---|---|
-| ![Rendered original PDF page in the live Vercel app](docs/screenshots/pdf-original.png) | ![Highlighted passage in the live Vercel app](docs/screenshots/live-citation.png) | ![Significance-ranked comparison](docs/screenshots/comparison.png) |
+| ![Rendered original PDF page in the live Vercel app](docs/screenshots/pdf-original.png) | ![Verified quote highlighted on the original PDF page](docs/screenshots/pdf-citation.png) | ![Significance-ranked comparison](docs/screenshots/comparison.png) |
 
 ## What is finished
 
@@ -22,7 +22,7 @@
 | Text extraction and scanned/no-text PDF rejection | ✅ Live verified | 6-page PDF, DOCX pair, and no-text PDF in production smoke |
 | 150-page ingestion, page-120 text access, and original PDF rendering | ✅ Live verified | Production smoke; a 5.3 MB direct browser upload rendered from six private chunks |
 | Quote verification, whitespace/Unicode mapping, wrong-document and amount-tampering rejection | ✅ Unit verified | `tests/quotes.test.ts` |
-| Citation click to rendered PDF passage or extracted DOCX text | ✅ Browser verified | Cross-page rendered PDF highlights and repeated-occurrence navigation in `npm run test:e2e`; saved DOCX quote opened in production |
+| Citation click to rendered PDF passage or extracted DOCX text | ✅ Live/browser verified | Live model quote opened on the original PDF page; cross-page and repeated navigation passed in `npm run test:e2e`; saved DOCX quote opened in production |
 | Agentic five-tool loop, malformed-call handling and caps | ✅ Live loop and mock verified | Production chat showed multiple read-only tool rounds; endless-loop test enforces the cap and disclosure |
 | Streaming answer and Stop with saved partial | ✅ Live browser verified | Stopped a streaming draft and reopened it after a reload; `tests/chat-stop.test.ts` |
 | Saved chat history | ✅ Live verified | Production smoke and browser reopen |
