@@ -34,6 +34,7 @@ async function extractPdf(buffer: Buffer, progress:(done:number,total:number)=>P
     pdf = await pdfjs.getDocument({ data: new Uint8Array(buffer), useSystemFonts: true, disableFontFace: true }).promise;
   } catch (error) {
     const message = error instanceof Error ? error.message : '';
+    console.error('pdf_load_failed', { name: error instanceof Error ? error.name : typeof error, message });
     if (/password|encrypted/i.test(message)) throw new AppError('encrypted', 422, 'This PDF is password-protected.');
     throw new AppError('corrupt', 422, 'This PDF could not be read.');
   }

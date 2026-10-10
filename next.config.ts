@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   distDir: process.env.E2E_BUILD_DIR ? '.next-e2e' : '.next',
   output: process.env.VERCEL ? undefined : 'standalone',
   serverExternalPackages: ['pdfjs-dist'],
-  outputFileTracingIncludes: {'/api/documents': ['./node_modules/pdfjs-dist/standard_fonts/**/*', './node_modules/pdfjs-dist/cmaps/**/*']},
+  outputFileTracingIncludes: {'/api/documents': ['./node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs', './node_modules/pdfjs-dist/standard_fonts/**/*', './node_modules/pdfjs-dist/cmaps/**/*']},
   async headers() {
     return [{ source: '/(.*)', headers: [
       { key: 'X-Content-Type-Options', value: 'nosniff' },
