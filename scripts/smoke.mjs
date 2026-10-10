@@ -44,6 +44,7 @@ assert.equal(failedScan,true,'scanned PDF did not fail clearly');
 const large=await upload('tests/fixtures/contract-150-pages.pdf','application/pdf');
 const largeDoc=await waitReady(large.document.id);assert.equal(largeDoc.page_count,150);
 const page120=await api(`/api/documents/${largeDoc.id}/text?page=120`);assert.match(page120.page.text,/AED 250,000/);
+const offsetPage=await api(`/api/documents/${largeDoc.id}/text?offset=${page120.page.start_offset}`);assert.equal(offsetPage.page.page_no,120);
 const {conversation:largeConversation}=await api('/api/conversations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({docIds:[largeDoc.id]})});
 const negative=await fetch(base+'/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({conversationId:largeConversation.id,question:'Does this agreement contain a unicorn clause?'})});
 const negativeStream=await negative.text();assert.match(negativeStream,/cannot confirm/i);

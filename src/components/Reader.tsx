@@ -4,8 +4,9 @@ import { ArrowLeft,ArrowRight,BookOpen,Check,ChevronLeft,ChevronRight,FileText,X
 import type { Block,Citation,DocumentRecord,Page } from '@/types/app';
 
 type Props={doc:DocumentRecord|null;citation:Citation|null;onClearCitation:()=>void};
+type PageData={page:Page|null;blocks:Block[];totalPages:number;synthetic:boolean};
 export function Reader({doc,citation,onClearCitation}:Props){
-  const [pageNo,setPageNo]=useState(1),[pages,setPages]=useState<{page:Page|null;blocks:Block[];totalPages:number;synthetic:boolean}[]>([]),[occurrence,setOccurrence]=useState(0);
+  const [pageNo,setPageNo]=useState(1),[pages,setPages]=useState<PageData[]>([]),[occurrence,setOccurrence]=useState(0);
   const scroller=useRef<HTMLDivElement>(null);
   const docId=doc?.id,docStatus=doc?.status;
   useEffect(()=>{setPageNo(1);setPages([]);setOccurrence(0);},[doc?.id]);
@@ -13,11 +14,17 @@ export function Reader({doc,citation,onClearCitation}:Props){
   useEffect(()=>{
     if(!docId||docStatus!=='ready')return;
     let cancelled=false;
-    const wanted=new Set<number>([pageNo]);
-    if(citation&&citation.docId===docId&&citation.result.verified)for(const p of citation.result.pages)wanted.add(p);
-    Promise.all([...wanted].sort((a,b)=>a-b).map(async p=>{const r=await fetch(`/api/documents/${docId}/text?page=${p}`);return r.json();})).then(data=>{if(!cancelled)setPages(data);});
+    const selected=citation&&citation.docId===docId&&citation.result.verified?citation.result.occurrences[occurrence]:null;
+    const queries=selected?[`offset=${selected.start}`,`offset=${Math.max(selected.start,selected.end-1)}`]:[`page=${pageNo}`];
+    Promise.all(queries.map(async query=>{const r=await fetch(`/api/documents/${docId}/text?${query}`);return await r.json() as PageData;})).then(data=>{
+      if(cancelled)return;
+      const unique=new Map<number,PageData>();
+      for(const item of data)if(item.page)unique.set(item.page.page_no,item);
+      setPages([...unique.values()].sort((a,b)=>(a.page?.page_no??0)-(b.page?.page_no??0)));
+      if(selected&&data[0]?.page?.page_no&&data[0].page.page_no!==pageNo)setPageNo(data[0].page.page_no);
+    });
     return()=>{cancelled=true;};
-  },[docId,docStatus,pageNo,citation]);
+  },[docId,docStatus,pageNo,citation,occurrence]);
   useEffect(()=>{if(citation&&pages.length){const timer=setTimeout(()=>scroller.current?.querySelector('[data-citation-target="true"]')?.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}),80);return()=>clearTimeout(timer);}},[citation,pages,occurrence]);
   const verifiedResult=citation?.result.verified?citation.result:null;
   const highlight=citation&&citation.docId===doc?.id&&verifiedResult?verifiedResult.occurrences[occurrence]:null;
