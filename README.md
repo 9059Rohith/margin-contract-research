@@ -12,7 +12,7 @@
 
 | Citation highlighting | Clause comparison |
 |---|---|
-| ![Highlighted passage](docs/screenshots/citation-highlight.png) | ![Significance-ranked comparison](docs/screenshots/comparison.png) |
+| ![Highlighted passage in the live Vercel app](docs/screenshots/live-citation.png) | ![Significance-ranked comparison](docs/screenshots/comparison.png) |
 
 ## What is finished
 
@@ -104,7 +104,7 @@ The production Vercel project currently has the private Blob store, Turso databa
 
 The API validates file content and size, stores uploads under UUID filenames, checks browser origins, rate limits mutations, and renders document/model text as React text or sanitized Markdown. The five agent tools are read-only and scoped to selected documents. `npm audit --omit=dev` reported **0 production dependency vulnerabilities** on the tested lockfile. This is a single-user assignment app without accounts or tenant isolation; avoid uploading confidential contracts to its public URL.
 
-Known limits: no OCR; no original PDF canvas overlay; partial scans are not identified page by page; DOCX tables and numbering can differ from Word's layout; FTS5 retrieval is not an exhaustive search; quote verification can reject true quotes when extraction loses characters; a repeated quote may be ambiguous; and comparison alignment/significance are heuristics. The live model was tested against the supplied fixtures and can still vary on unseen contracts. Stopped drafts are saved before quote verification and are explicitly labelled unverified.
+Known limits: no OCR; no original PDF canvas overlay; partial scans are not identified page by page; DOCX tables and numbering can differ from Word's layout; FTS5 retrieval is not an exhaustive search; quote verification can reject true quotes when extraction loses characters; a repeated quote may be ambiguous; and comparison alignment/significance are heuristics. The live model was tested against the supplied fixtures and can still vary on unseen contracts. Invalid model output falls back to limited verified extracts. Stopped drafts are saved before quote verification and are explicitly labelled unverified.
 
 See [engineering decisions](docs/DECISIONS.md), [architecture](docs/ARCHITECTURE.md), [API](docs/API.md), [half-page note](docs/NOTE.md), and [recording plan](docs/DEMO_SCRIPT.md).
 
