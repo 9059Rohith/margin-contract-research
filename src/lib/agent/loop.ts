@@ -69,6 +69,37 @@ export function sanitizeAnswer(answer:string,citations:Citation[],coverage:Cover
   return content.replace(/\[([A-Za-z0-9_-]+)\]/g,(all,id:string)=>verified.some(c=>c.id===id)?all:'');
 }
 
+function canonicalizeQuoteIds(answer:string,quotes:{id:string;doc_id:string;quote:string}[]) {
+  const aliases=new Map<string,string>();
+  const canonical=quotes.map((quote,index)=>{
+    const id=`Q${index+1}`;
+    aliases.set(quote.id,id);
+    aliases.set(`Q${quote.id}`,id);
+    aliases.set(String(index+1),id);
+    aliases.set(id,id);
+    return {...quote,id};
+  });
+  return {answer:answer.replace(/\[([A-Za-z0-9_-]+)\]/g,(marker,id:string)=>aliases.has(id)?`[${aliases.get(id)}]`:marker),quotes:canonical};
+}
+
+function verifiedEvidenceFallback(citations:Citation[],docIds:string[]):string {
+  const verified=citations.filter(c=>c.result.verified);
+  const byDocument=docIds.map(id=>verified.find(c=>c.docId===id));
+  if(docIds.length>1 && byDocument.every(Boolean)) {
+    const evidence=byDocument as Citation[];
+    const amounts=evidence.map(c=>c.quote.match(/\b(?:AED|USD|EUR|GBP)\s*[\d,]+(?:\.\d+)?\b/i)?.[0]);
+    if(docIds.length===2 && amounts.every(Boolean) && new Set(amounts).size>1) {
+      return `The cited amounts differ: **${evidence[0]!.documentName}** states ${amounts[0]} [${evidence[0]!.id}], while **${evidence[1]!.documentName}** states ${amounts[1]} [${evidence[1]!.id}]. Review the verified passages for the full wording.`;
+    }
+    return `The selected documents have these relevant verified passages: ${evidence.map(c=>`**${c.documentName}**: “${c.quote}” [${c.id}]`).join(' ')} Review their wording for the difference.`;
+  }
+  if(verified.length) {
+    const c=verified[0]!;
+    return `I found this verified passage in **${c.documentName}**: “${c.quote}” [${c.id}]. I could not verify a fuller answer from the passages examined.`;
+  }
+  return 'I could not verify a supported answer from this document.';
+}
+
 export async function research(question:string,docIds:string[],emit:Event,signal:AbortSignal):Promise<Answer> {
   const docs=(await Promise.all(docIds.map(id=>repo.getDocument(id)))).filter(d=>d?.status==='ready');
   if(docs.length!==docIds.length)throw new Error('Document not ready');
@@ -171,8 +202,10 @@ export async function research(question:string,docIds:string[],emit:Event,signal
     emit({type:'delta',text:content});
     return {content,citations:[],coverage:coverage(),status:'error'};
   }
-  const citations=await verifyCitations(parsed.data.quotes,docIds);
-  const content=sanitizeAnswer(parsed.data.answer_markdown,citations,coverage(),parsed.data.answer_status);
+  const canonical=canonicalizeQuoteIds(parsed.data.answer_markdown,parsed.data.quotes);
+  const citations=await verifyCitations(canonical.quotes,docIds);
+  const sanitized=sanitizeAnswer(canonical.answer,citations,coverage(),parsed.data.answer_status);
+  const content=sanitized==='I could not verify a supported answer from this document.'?verifiedEvidenceFallback(citations,docIds):sanitized;
   emit({type:'replace',text:content});
   return {content,citations,coverage:coverage(),status:'complete'};
 }

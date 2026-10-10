@@ -22,6 +22,14 @@ const stream=await response.text();assert.match(stream,/"type":"meta"/);assert.m
 const history=await api(`/api/conversations/${conversation.id}`);assert.equal(history.messages.length,2);assert.ok(history.messages[1].content.length>0);
 assert.equal(history.messages[1].citations[0]?.result.verified,true,'chat did not retain a verified quote');
 if(history.messages[1].coverage.mode==='retrieval')assert.match(history.messages[1].content,/potentially relevant passage/);
+const {conversation:multiConversation}=await api('/api/conversations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({docIds:[a.id,b.id]})});
+const multiResponse=await fetch(base+'/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({conversationId:multiConversation.id,question:'Compare the liability caps in these two versions. State the amount in each and quote the relevant clause from each document.'})});
+assert.equal(multiResponse.status,200);
+assert.match(await multiResponse.text(),/"type":"done"/);
+const multiHistory=await api(`/api/conversations/${multiConversation.id}`);
+const multiAnswer=multiHistory.messages[1];
+assert.ok(multiAnswer.content.includes('100,000')&&multiAnswer.content.includes('1,000,000'),'multi-document answer omitted a liability amount');
+assert.ok([a.id,b.id].every(id=>multiAnswer.citations.some(c=>c.docId===id&&c.result.verified)),'multi-document answer did not verify a quote for each document');
 const assignmentPdf='hiring assignment.pdf';
 let parsedPdf=null;
 if(await fs.access(path.resolve(assignmentPdf)).then(()=>true,()=>false)){

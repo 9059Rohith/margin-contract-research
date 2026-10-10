@@ -19,7 +19,7 @@ beforeAll(async()=>{
     calls++;
     res.setHeader('Content-Type',parsed.stream?'text/event-stream':'application/json');
     if(parsed.stream){
-      const answer=JSON.stringify({answer_markdown:'The liability cap is AED 100,000. [Q1]',answer_status:'answered',quotes:[{id:'Q1',doc_id:docId,quote}]});
+      const answer=JSON.stringify({answer_markdown:'The liability cap is AED 100,000. [Q1]',answer_status:'answered',quotes:[{id:'1',doc_id:docId,quote}]});
       for(let i=0;i<answer.length;i+=25)res.write(`data: ${JSON.stringify({id:'chatcmpl-test',object:'chat.completion.chunk',choices:[{index:0,delta:{content:answer.slice(i,i+25)},finish_reason:null}]})}\n\n`);
       res.end('data: [DONE]\n\n');return;
     }
@@ -53,6 +53,7 @@ describe('agent loop with scripted provider',()=>{
     expect(events.filter(e=>e.type==='tool_call')).toHaveLength(2);
     expect(events.some(e=>e.type==='delta')).toBe(true);
     expect(result.citations[0]?.result.verified).toBe(true);
+    expect(result.citations[0]?.id).toBe('Q1');
     expect(result.content).toContain('AED 100,000');
     expect(result.coverage.coverage_pct).toBe(100);
   });
