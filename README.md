@@ -14,15 +14,15 @@ The video uses the deployed application and synthetic contracts. It has audio na
 
 | Verified answer and highlighted clause | Clause-level version comparison |
 |:---:|:---:|
-| [![A verified answer linked to its highlighted source clause](docs/screenshots/live-citation.png)](docs/screenshots/live-citation.png) | [![High and medium significance changes between contract versions](docs/screenshots/comparison.png)](docs/screenshots/comparison.png) |
+| [![A verified answer linked to its highlighted source clause](docs/assets/live-citation-preview.webp)](docs/screenshots/live-citation.png) | [![High and medium significance changes between contract versions](docs/assets/comparison-preview.webp)](docs/screenshots/comparison.png) |
 | The quote is checked against `msa-v1.docx` before the badge appears. Clicking it opens the matching text. | A liability cap change from AED 100,000 to AED 1,000,000 is ranked High, with before/after wording and a significance filter. |
 
 | Original PDF and repeated wording | First-run upload experience |
 |:---:|:---:|
-| [![Original PDF passage with a citation highlight and an occurrence navigator](docs/screenshots/pdf-citation.png)](docs/screenshots/pdf-citation.png) | [![Margin's upload and research empty state](docs/screenshots/upload-empty.png)](docs/screenshots/upload-empty.png) |
+| [![Original PDF passage with a citation highlight and an occurrence navigator](docs/assets/pdf-citation-preview.webp)](docs/screenshots/pdf-citation.png) | [![Margin's upload and research empty state](docs/screenshots/upload-empty.png)](docs/screenshots/upload-empty.png) |
 | The PDF viewer opens the original page, highlights the quote, and lets the reader move between repeated occurrences. | The library accepts PDF and DOCX files and shows processing status. |
 
-The screenshots show actual application states from synthetic fixtures. The [recorded walkthrough](https://drive.google.com/file/d/1Kn3XTk8AifESHZtr6lFynVqfSkDcKJJM/view) covers upload, a model-backed answer, citation navigation, original PDF highlighting, repeated occurrences, and comparison filtering in 3 minutes 37 seconds. Its narration is synthetic; no private contract or API key appears in the recording. The [recording script and scene outline](docs/DEMO_SCRIPT.md) and [browser tests](tests/e2e/contract-workflow.spec.ts) make the visual evidence reproducible.
+The screenshots show actual application states from synthetic fixtures. The previews are cropped for focus; click one to inspect its unaltered full capture. The [recorded walkthrough](https://drive.google.com/file/d/1Kn3XTk8AifESHZtr6lFynVqfSkDcKJJM/view) covers upload, a model-backed answer, citation navigation, original PDF highlighting, repeated occurrences, and comparison filtering in 3 minutes 37 seconds. Its narration is synthetic; no private contract or API key appears in the recording. The [recording script and scene outline](docs/DEMO_SCRIPT.md) and [browser tests](tests/e2e/contract-workflow.spec.ts) make the visual evidence reproducible.
 
 ## Assignment coverage
 

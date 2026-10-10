@@ -106,6 +106,17 @@ def main() -> None:
     canvas.convert("RGB").save(output, optimize=True)
     print(output)
 
+    previews = {
+        "live-citation": (305, 70, 1440, 900),
+        "comparison": (145, 25, 1295, 875),
+        "pdf-citation": (305, 70, 1440, 900),
+    }
+    for name, bounds in previews.items():
+        full = Image.open(ROOT / f"docs/screenshots/{name}.png").convert("RGB")
+        destination = ROOT / f"docs/assets/{name}-preview.webp"
+        full.crop(bounds).save(destination, "WEBP", quality=92, method=6)
+        print(destination)
+
 
 if __name__ == "__main__":
     main()
