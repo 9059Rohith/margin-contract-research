@@ -3,8 +3,8 @@ import { z } from 'zod';
 const schema = z.object({
   DATA_DIR: z.string().default('./data'),
   LLM_API_KEY: z.string().optional(),
-  LLM_BASE_URL: z.string().url().default('https://openrouter.ai/api/v1'),
-  LLM_MODEL: z.string().default('openai/gpt-4o-mini'),
+  LLM_BASE_URL: z.string().url().default('https://api.openai.com/v1'),
+  LLM_MODEL: z.string().default('gpt-4o-mini'),
   MAX_UPLOAD_MB: z.coerce.number().int().min(1).max(200).default(40),
   MAX_PAGES: z.coerce.number().int().min(1).max(1000).default(400),
   AGENT_MAX_ROUNDS: z.coerce.number().int().min(1).max(20).default(8),

@@ -1,5 +1,7 @@
 node_modules/
 .next/
+.next-test/
+.next-dev-test/
 data/
 .env
 .env.local
@@ -8,3 +10,6 @@ test-results/
 *.tsbuildinfo
 tmp/
 hiring assignment.pdf
+
+.vercel
+.env*

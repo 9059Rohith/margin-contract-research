@@ -2,9 +2,11 @@
 
 ```mermaid
 flowchart LR
-  Upload[PDF or DOCX upload] --> Sniff[Magic-byte and size validation]
+  Upload[PDF or DOCX upload] --> Blob[(Private Blob for deployed files)]
+  Upload --> Sniff[Magic-byte and size validation]
+  Blob --> Sniff
   Sniff --> Extract[Per-page or paragraph extraction]
-  Extract --> Store[(SQLite: documents, pages, blocks, chunks)]
+  Extract --> Store[(libSQL / Turso: documents, pages, blocks, chunks)]
   Store --> FTS[FTS5 search]
   Question[Question] --> Agent[Bounded research loop]
   Agent --> FTS
@@ -16,4 +18,4 @@ flowchart LR
   Store --> Compare[Clause alignment and materiality rules]
 ```
 
-The source file, canonical extracted text, pages, blocks and search chunks are stored once. Model messages only receive bounded tool results. Every final citation is independently checked against the correct document's canonical text, then mapped back to blocks for highlighting. Conversation messages persist while streaming so stopped answers remain available.
+The source file is stored locally in development and in private Vercel Blob in production. Files over 4 MB upload directly from the browser to Blob, then the server validates their bytes before registration. Canonical extracted text, pages, blocks and search chunks live in local libSQL or hosted Turso. Model messages receive bounded tool results. Every final citation is independently checked against the correct document's canonical text, then mapped back to blocks for highlighting. The Stop endpoint saves the visible partial answer; late model output cannot overwrite it.

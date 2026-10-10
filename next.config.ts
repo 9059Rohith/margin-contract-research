@@ -1,8 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
-  serverExternalPackages: ['better-sqlite3', 'pdfjs-dist'],
+  output: process.env.VERCEL ? undefined : 'standalone',
+  serverExternalPackages: ['pdfjs-dist'],
+  outputFileTracingIncludes: {'/api/documents': ['./node_modules/pdfjs-dist/standard_fonts/**/*', './node_modules/pdfjs-dist/cmaps/**/*']},
   async headers() {
     return [{ source: '/(.*)', headers: [
       { key: 'X-Content-Type-Options', value: 'nosniff' },

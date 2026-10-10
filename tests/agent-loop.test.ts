@@ -34,12 +34,14 @@ beforeAll(async()=>{
   process.env.LLM_MODEL='mock';
   const {db}=await import('../src/lib/db');
   const now=new Date().toISOString();
-  db.prepare('INSERT INTO documents(id,name,mime,size_bytes,sha256,status,page_count,char_count,source_path,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(docId,'Mock MSA','application/pdf',100,'hash','ready',1,quote.length,'unused',now,now);
-  db.prepare('INSERT INTO document_text(document_id,full_text,version) VALUES(?,?,1)').run(docId,quote);
-  db.prepare('INSERT INTO doc_pages(id,document_id,page_no,start_offset,end_offset,text) VALUES(?,?,?,?,?,?)').run('page1',docId,1,0,quote.length,quote);
-  db.prepare('INSERT INTO doc_blocks(id,document_id,page_no,order_idx,kind,section_label,start_offset,end_offset,text) VALUES(?,?,?,?,?,?,?,?,?)').run('block1',docId,1,0,'paragraph','5',0,quote.length,quote);
-  db.prepare('INSERT INTO chunks(id,document_id,page_no,start_offset,end_offset,text) VALUES(?,?,?,?,?,?)').run('chunk1',docId,1,0,quote.length,quote);
-  db.prepare('INSERT INTO chunks_fts(chunk_id,document_id,text) VALUES(?,?,?)').run('chunk1',docId,quote);
+  await db.batch([
+    {sql:'INSERT INTO documents(id,name,mime,size_bytes,sha256,status,page_count,char_count,source_path,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)',args:[docId,'Mock MSA','application/pdf',100,'hash','ready',1,quote.length,'unused',now,now]},
+    {sql:'INSERT INTO document_text(document_id,full_text,version) VALUES(?,?,1)',args:[docId,quote]},
+    {sql:'INSERT INTO doc_pages(id,document_id,page_no,start_offset,end_offset,text) VALUES(?,?,?,?,?,?)',args:['page1',docId,1,0,quote.length,quote]},
+    {sql:'INSERT INTO doc_blocks(id,document_id,page_no,order_idx,kind,section_label,start_offset,end_offset,text) VALUES(?,?,?,?,?,?,?,?,?)',args:['block1',docId,1,0,'paragraph','5',0,quote.length,quote]},
+    {sql:'INSERT INTO chunks(id,document_id,page_no,start_offset,end_offset,text) VALUES(?,?,?,?,?,?)',args:['chunk1',docId,1,0,quote.length,quote]},
+    {sql:'INSERT INTO chunks_fts(chunk_id,document_id,text) VALUES(?,?,?)',args:['chunk1',docId,quote]},
+  ]);
 });
 afterAll(async()=>{await new Promise<void>(resolve=>server.close(()=>resolve()));});
 describe('agent loop with scripted provider',()=>{

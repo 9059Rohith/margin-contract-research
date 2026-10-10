@@ -2,7 +2,7 @@ import { repo, type Block } from '@/lib/db';
 import { verifyCitations } from '@/lib/quotes/verify';
 
 type Unit={label:string;title:string;text:string;start:number;end:number;page:number};
-export type Change={id:string;kind:'modified'|'added'|'removed';significance:'high'|'medium'|'low'|'cosmetic';category:string;summary:string;before:Unit|null;after:Unit|null;citations:ReturnType<typeof verifyCitations>};
+export type Change={id:string;kind:'modified'|'added'|'removed';significance:'high'|'medium'|'low'|'cosmetic';category:string;summary:string;before:Unit|null;after:Unit|null;citations:Awaited<ReturnType<typeof verifyCitations>>};
 
 function units(blocks:Block[]):Unit[]{
   const result:Unit[]=[];
@@ -43,8 +43,9 @@ export function classify(a:Unit|null,b:Unit|null):{significance:Change['signific
   else if(sig==='cosmetic')summary='The wording changed, with no detected change to amounts or timing.';
   return {significance:sig,category:cat,summary};
 }
-export function compareDocuments(docA:string,docB:string):{summary:string;changes:Change[];counts:Record<string,number>} {
-  const a=units(repo.getBlocks(docA)),b=units(repo.getBlocks(docB));
+export async function compareDocuments(docA:string,docB:string):Promise<{summary:string;changes:Change[];counts:Record<string,number>}> {
+  const [aBlocks,bBlocks]=await Promise.all([repo.getBlocks(docA),repo.getBlocks(docB)]);
+  const a=units(aBlocks),b=units(bBlocks);
   const used=new Set<number>();
   const pairs:{before:Unit|null;after:Unit|null}[]=[];
   for(const before of a){
@@ -54,10 +55,13 @@ export function compareDocuments(docA:string,docB:string):{summary:string;change
     else pairs.push({before,after:null});
   }
   b.forEach((after,i)=>{if(!used.has(i))pairs.push({before:null,after});});
-  const changes:Change[]=pairs.filter(p=>!p.before||!p.after||p.before.text.trim()!==p.after.text.trim()).map((p,i)=>{
+  const changed=pairs.filter(p=>!p.before||!p.after||p.before.text.trim()!==p.after.text.trim());
+  const quoteGroups=changed.map((p,i)=>[...(p.before?[{id:`A${i}`,doc_id:docA,quote:p.before.text.slice(0,260)}]:[]),...(p.after?[{id:`B${i}`,doc_id:docB,quote:p.after.text.slice(0,260)}]:[])]);
+  const verified=await verifyCitations(quoteGroups.flat(),[docA,docB]);
+  const byId=new Map(verified.map(c=>[c.id,c]));
+  const changes:Change[]=changed.map((p,i)=>{
     const info=classify(p.before,p.after);
-    const quotes=[...(p.before?[{id:`A${i}`,doc_id:docA,quote:p.before.text.slice(0,260)}]:[]),...(p.after?[{id:`B${i}`,doc_id:docB,quote:p.after.text.slice(0,260)}]:[])];
-    return {id:`change-${i}`,kind:!p.before?'added':!p.after?'removed':'modified',...info,before:p.before,after:p.after,citations:verifyCitations(quotes,[docA,docB])};
+    return {id:`change-${i}`,kind:!p.before?'added':!p.after?'removed':'modified',...info,before:p.before,after:p.after,citations:quoteGroups[i]!.map(q=>byId.get(q.id)).filter((c):c is NonNullable<typeof c>=>Boolean(c))} as Change;
   });
   const order={high:0,medium:1,low:2,cosmetic:3};
   changes.sort((x,y)=>order[x.significance]-order[y.significance]);

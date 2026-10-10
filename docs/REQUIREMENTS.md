@@ -11,7 +11,7 @@ Source: `hiring assignment.pdf`, six pages. The quoted requirements below retain
 | A5 | "A document library where uploaded files are listed, opened and deleted." | documents API and library | browser walkthrough | Finished |
 | A6 | "Ask questions about an uploaded document and get answers." | agent, chat SSE | mocked/real provider test | Partial |
 | A7 | "Answers stream in as they are generated, not all at once at the end." | `src/lib/agent/loop.ts`, SSE | streaming test | Partial |
-| A8 | "The user can stop an answer while it is being written, and whatever was generated is kept." | AbortController and message persistence | stop/reload test | Partial |
+| A8 | "The user can stop an answer while it is being written, and whatever was generated is kept." | AbortController, explicit stop endpoint, guarded message persistence | `tests/chat-stop.test.ts`; live browser stop pending | Partial |
 | A9 | "Chat history is saved per document and can be reopened." | conversations API and library history | browser walkthrough | Finished |
 | A10 | "Before a quote is shown to the user, your code must confirm that the quote actually exists in the document text." | `src/lib/quotes` | `tests/quotes.test.ts` | Finished |
 | A11 | "Quote found: show it as verified, and let the user open it in the document." | `Evidence`, `Reader` | quote click test | Finished |
@@ -39,7 +39,7 @@ Source: `hiring assignment.pdf`, six pages. The quoted requirements below retain
 | S1 | "Read the API key, base URL and model name from environment variables." | `src/lib/env.ts` | config inspection | Finished |
 | S2 | "Do not commit API keys to the repository." | `.gitignore`, `.env.example` | staged paths and credential-pattern scan | Finished |
 | D1 | "GitHub repository link." | `https://github.com/9059Rohith/margin-contract-research` | remote content check | Finished |
-| D2 | "Deployed link. A working, live version we can open and use." | Docker/Railway config | local production smoke passed; Railway workspace rejected creation | Blocked externally |
+| D2 | "Deployed link. A working, live version we can open and use." | Vercel, private Blob, Turso adapter | Vercel UI returns 200, deployed API fails until Turso is installed; local production smoke passes | Blocked externally |
 | D3 | "README containing ... Screenshots ... How to run it locally ... What is finished and what is not" | `README.md` | document review | Finished |
 | D4 | "Demo video (3 to 5 minutes)." | `docs/demo.webm`, `scripts/record-demo.mjs` | captioned production recording | Finished |
 | D5 | "A short note (half a page) covering ..." | `docs/NOTE.md` | document review | Finished |

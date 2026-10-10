@@ -1,0 +1,14 @@
+.git
+.next
+.next-test
+.next-dev-test
+node_modules
+data
+docs
+tests
+tmp
+playwright-report
+test-results
+*.tsbuildinfo
+hiring assignment.pdf
+.env*
