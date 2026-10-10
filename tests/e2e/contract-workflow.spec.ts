@@ -26,6 +26,11 @@ test('upload, research with verified quote, and compare two contracts',async({pa
   await expect(page.getByRole('dialog',{name:'Document comparison'})).toBeVisible();
   await expect(page.locator('.change-row:has(.significance.high)')).toHaveCount(1);
   await expect(page.locator('.comparison-summary')).toContainText('high-significance');
+  await page.getByRole('button',{name:'Close comparison'}).click();
+  await page.locator('#upload-input').setInputFiles(fixture('cross-page-duplicate.pdf'));
+  await expect(page.getByRole('heading',{name:'cross-page-duplicate.pdf'})).toBeVisible();
+  await expect(page.locator('.research-header')).toContainText('Research');
+  await expect(page.locator('.scope-bar')).toHaveCount(0);
 });
 
 test('cross-page and repeated quotes open the correct passages',async({page})=>{
@@ -70,4 +75,19 @@ test('cross-page and repeated quotes open the correct passages',async({page})=>{
   await page.getByRole('button',{name:'Original PDF'}).click();
   await expect(page.locator('.pdf-canvas-page')).toHaveCount(1);
   await expect(page.locator('.pdf-citation-highlight').first()).toBeVisible();
+});
+
+test('mobile library and reader stay usable at phone width',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/');
+  await page.locator('#upload-input').setInputFiles(fixture('msa-v1.docx'));
+  await expect(page.getByRole('heading',{name:'msa-v1.docx'})).toBeVisible();
+  await expect(page.locator('.reader-header .status-badge')).toContainText('Ready');
+  await page.getByRole('button',{name:'Open library'}).click();
+  await expect(page.locator('.library')).toHaveClass(/open/);
+  await expect(page.getByRole('button',{name:'msa-v1.docx 1 section'})).toBeVisible();
+  await page.getByRole('button',{name:'msa-v1.docx 1 section'}).click();
+  await expect(page.locator('.library')).not.toHaveClass(/open/);
+  await expect(page.getByRole('textbox',{name:'Ask a question'})).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
 });

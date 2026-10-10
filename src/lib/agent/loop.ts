@@ -142,7 +142,7 @@ export async function research(question:string,docIds:string[],emit:Event,signal
       }
     }
     const citations=await verifyCitations(quotes,docIds);
-    const content=lines.length?`${lines.join('\n\n')}\n\nThis is an extractive result. Configure an LLM to enable synthesis and agentic research.`:'No matching passage was found by the text index. I cannot confirm the topic is absent from the full document.';
+    const content=lines.length?`${lines.join('\n\n')}\n\nThis is a source extract. A full AI summary is unavailable right now.`:'No matching passage was found by the text index. I cannot confirm the topic is absent from the full document.';
     emit({type:'delta',text:content});
     return {content,citations,coverage:coverage(),status:'complete'};
   }
