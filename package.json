@@ -1,0 +1,53 @@
+{
+  "name": "margin-contract-research",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "node scripts/start.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "gen:fixtures": "node scripts/gen-fixtures.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "screenshots": "node scripts/screenshots.mjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "13.0.3",
+    "drizzle-orm": "0.45.4",
+    "fast-xml-parser": "5.11.2",
+    "jszip": "3.10.1",
+    "lucide-react": "0.468.0",
+    "next": "15.5.27",
+    "next-themes": "0.4.6",
+    "openai": "5.20.0",
+    "pdfjs-dist": "4.10.38",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1",
+    "zod": "3.24.2"
+  },
+  "overrides": {
+    "postcss": "8.5.29",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "@types/better-sqlite3": "7.6.13",
+    "@types/node": "22.15.30",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "drizzle-kit": "0.31.1",
+    "eslint": "9.39.1",
+    "eslint-config-next": "15.5.27",
+    "fast-check": "4.4.0",
+    "tailwindcss": "4.1.18",
+    "@tailwindcss/postcss": "4.1.18",
+    "typescript": "5.9.3",
+    "vitest": "3.2.4"
+  }
+}

@@ -1,0 +1,15 @@
+import { describe,it,expect } from 'vitest';
+import fc from 'fast-check';
+import { normalizeWithMap,verifyQuote,type DocIndex } from '../src/lib/quotes/matcher';
+
+const index=(text:string,split?:number):DocIndex=>({text,pages:split?[{start:0,end:split,page:1},{start:split+1,end:text.length,page:2}]:[{start:0,end:text.length,page:1}],blocks:split?[{start:0,end:split,page:1,id:'a'},{start:split+1,end:text.length,page:2,id:'b'}]:[{start:0,end:text.length,page:1,id:'a'}]});
+describe('verified quotes',()=>{
+  it('finds exact and repeated quotes',()=>{const text='The cap is AED 100,000. The cap is AED 100,000. The cap is AED 100,000.';const result=verifyQuote(index(text),'The cap is AED 100,000.');expect(result.verified).toBe(true);if(result.verified)expect(result.occurrences).toHaveLength(3);});
+  it('accepts extraction whitespace, quotes, dashes and ligatures',()=>{const text='The ﬁnal agreement says “reasonable efforts” — with notice.';expect(verifyQuote(index(text),'The final agreement says "reasonable efforts" - with notice.').verified).toBe(true);});
+  it('joins extraction hyphenation and non-breaking spaces',()=>{const text='The indemni-\nfication clause applies to all claims. Payment\u00a0is due.';expect(verifyQuote(index(text),'The indemnification clause applies to all claims.').verified).toBe(true);expect(verifyQuote(index(text),'Payment is due.').verified).toBe(true);});
+  it('maps a cross-page quote to both pages',()=>{const text='The supplier shall give thirty\ndays notice';const result=verifyQuote(index(text,25),'shall give thirty days notice');expect(result.verified).toBe(true);if(result.verified)expect(result.pages).toEqual([1,2]);});
+  it('rejects numeric tampering and invented text',()=>{expect(verifyQuote(index('Liability is capped at AED 100,000.'),'Liability is capped at AED 1,000,000.').verified).toBe(false);expect(verifyQuote(index('Payment is due in 30 days.'),'Either party may terminate without notice.').verified).toBe(false);});
+  it('rejects a quote attributed to the wrong document',()=>{const a=index('The payment period is thirty days.');const b=index('The payment period is forty-five days.');const quote='The payment period is forty-five days.';expect(verifyQuote(a,quote).verified).toBe(false);expect(verifyQuote(b,quote).verified).toBe(true);});
+  it('rejects trivial quotes',()=>{expect(verifyQuote(index('The agreement is binding.'),'the').verified).toBe(false);});
+  it('tracks offsets across whitespace mutations',()=>{fc.assert(fc.property(fc.constantFrom('The customer shall pay within 30 days.','All confidential information remains protected.','The supplier may terminate on written notice.'),fc.boolean(),(sentence,extra)=>{const text=`Preamble. ${sentence.replaceAll(' ',extra?'  ':'\n')} End.`;const result=verifyQuote(index(text),sentence);expect(result.verified).toBe(true);if(result.verified){expect(normalizeWithMap(text.slice(result.primary.start,result.primary.end)).text).toBe(normalizeWithMap(sentence).text);}}));});
+});

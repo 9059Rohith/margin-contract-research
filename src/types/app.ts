@@ -1,0 +1,9 @@
+export type DocumentRecord={id:string;name:string;mime:string;size_bytes:number;status:string;failure_code:string|null;failure_message:string|null;page_count:number;char_count:number;progress_done:number;progress_total:number;created_at:string;updated_at:string};
+export type Segment={start:number;end:number;page:number;blockId?:string};
+export type Citation={id:string;docId:string;documentName:string;quote:string;result:{verified:true;matchType:string;occurrences:{start:number;end:number}[];primary:{start:number;end:number};ranges:Segment[];pages:number[]}|{verified:false;reason:string}};
+export type Message={id:string;role:'user'|'assistant';content:string;status:string;citations:Citation[];coverage?:{coverage_pct:number;mode:string;budget_exhausted:boolean;rounds_used:number;notes:string}};
+export type Conversation={id:string;title:string;scope:string;created_at:string};
+export type Block={id:string;page_no:number;start_offset:number;end_offset:number;text:string;kind:string;section_label:string|null};
+export type Page={id:string;page_no:number;start_offset:number;end_offset:number;text:string};
+export type Change={id:string;kind:string;significance:'high'|'medium'|'low'|'cosmetic';category:string;summary:string;before:{label:string;title:string;text:string;start:number;end:number;page:number}|null;after:{label:string;title:string;text:string;start:number;end:number;page:number}|null;citations:Citation[]};
+export type Comparison={summary:string;changes:Change[];counts:Record<string,number>};
