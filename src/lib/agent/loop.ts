@@ -107,6 +107,23 @@ export async function research(question:string,docIds:string[],emit:Event,signal
   const ranges:ReadRange[]=[];
   let rounds=0,budgetExhausted=false;
   const coverage=():Coverage=>({mode:env.LLM_API_KEY?'agentic':'retrieval',total_chars:total,read_ranges:ranges,coverage_pct:total?Math.floor(unionLength(ranges)/total*100):0,budget_exhausted:budgetExhausted,rounds_used:rounds,notes:docs.length>1?'Coverage is across selected documents.':'Only returned passages count as read.'});
+  const verifiedSearchFallback=async():Promise<Answer>=>{
+    const terms=question.toLowerCase().match(/[\p{L}\p{N}]{3,}/gu)??[];
+    const quoteCandidates=await Promise.all(docs.map(async(doc,index)=>{
+      const result=await searchFallback(question,doc!.id);
+      if(!result.ok||!result.ranges.length)return null;
+      ranges.push(...result.ranges.map(range=>({...range,docId:doc!.id})));
+      const range=result.ranges[0]!;
+      const blocks=(await repo.getBlocks(doc!.id)).filter(block=>block.end_offset>range.start&&block.start_offset<range.end);
+      const ranked=blocks.map(block=>({text:block.text.trim(),score:terms.filter(term=>block.text.toLowerCase().includes(term)).length+(/\b(?:liability|cap|amount)\b/i.test(question)&&/\b(?:AED|USD|EUR|GBP)\s*[\d,]+/i.test(block.text)?5:0)})).filter(item=>item.text.length>=12).sort((a,b)=>b.score-a.score);
+      const quote=ranked[0]?.text.slice(0,300);
+      return quote?{id:`Q${index+1}`,doc_id:doc!.id,quote}:null;
+    }));
+    const citations=await verifyCitations(quoteCandidates.filter((quote):quote is NonNullable<typeof quote>=>quote!==null),docIds);
+    const content=`${verifiedEvidenceFallback(citations,docIds)} This is a limited extractive result because model synthesis could not be verified.`;
+    emit({type:'replace',text:content});
+    return {content,citations,coverage:coverage(),status:'complete'};
+  };
   if(!env.LLM_API_KEY) {
     const hits=await Promise.all(docs.map(async d=>({doc:d!,result:await searchFallback(question,d!.id)})));
     const quotes:{id:string;doc_id:string;quote:string}[]=[];
@@ -188,9 +205,7 @@ export async function research(question:string,docIds:string[],emit:Event,signal
     if(signal.aborted)throw error;
     logModelFailure('draft',error);
     budgetExhausted=true;
-    const content='Search budget exhausted; answer may be incomplete. The response could not be verified.';
-    emit({type:'replace',text:content});
-    return {content,citations:[],coverage:coverage(),status:'complete'};
+    return verifiedSearchFallback();
   }
   let parsed=outputSchema.safeParse(parseJson(raw));
   if(!parsed.success && timeLeft()>1000) {
@@ -198,9 +213,8 @@ export async function research(question:string,docIds:string[],emit:Event,signal
     try{const repair=await client.chat.completions.create({model:env.LLM_MODEL,messages:[{role:'system',content:'Convert the following into valid JSON with answer_markdown, answer_status, quotes. Return JSON only.'},{role:'user',content:raw.slice(0,10000)}],temperature:0,max_tokens:Math.min(1600,env.AGENT_MAX_TOKENS_BUDGET-tokensUsed)},{signal:limitedSignal()});parsed=outputSchema.safeParse(parseJson(repair.choices[0]?.message?.content??'{}'));}catch(error){if(signal.aborted)throw error;}
   }
   if(!parsed.success) {
-    const content='The research completed, but the model response could not be verified. Please try again.';
-    emit({type:'delta',text:content});
-    return {content,citations:[],coverage:coverage(),status:'error'};
+    console.warn('invalid_model_json',{rawChars:raw.length});
+    return verifiedSearchFallback();
   }
   const canonical=canonicalizeQuoteIds(parsed.data.answer_markdown,parsed.data.quotes);
   const citations=await verifyCitations(canonical.quotes,docIds);

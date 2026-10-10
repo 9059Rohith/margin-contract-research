@@ -66,5 +66,16 @@ export async function executeTool(name:string,rawArgs:string,allowedDocIds:strin
 }
 
 export async function searchFallback(query:string,docId:string):Promise<ToolResult> {
-  return executeTool('search_document',JSON.stringify({query,top_k:5,doc_id:docId}),[docId]);
+  const concepts:[RegExp,string][]=[[/liabilit|\bcap\b/i,'liability cap'],[/terminat/i,'termination'],[/indemnit/i,'indemnity'],[/confidential/i,'confidentiality'],[/payment|invoice/i,'payment'],[/governing law|jurisdiction/i,'governing law'],[/notice/i,'notice']];
+  const focused=concepts.find(([pattern])=>pattern.test(query))?.[1];
+  const noise=new Set(['what','which','where','when','does','this','that','these','those','the','and','for','with','from','about','agreement','document','contract','compare','both','versions','state','amount','each','quote','relevant','clause','clauses','please','explain','show']);
+  const words=(query.toLowerCase().match(/[\p{L}\p{N}]{3,}/gu)??[]).filter(word=>!noise.has(word));
+  const candidates=[focused,...words].filter((value):value is string=>Boolean(value));
+  let last:ToolResult={ok:true,data:'No matching passages found.',ranges:[],docId};
+  for(const candidate of new Set(candidates)) {
+    const result=await executeTool('search_document',JSON.stringify({query:candidate,top_k:5,doc_id:docId}),[docId]);
+    if(result.ok&&result.ranges.length)return result;
+    last=result;
+  }
+  return last;
 }

@@ -6,7 +6,7 @@ The Vercel project has a private Blob store, a Turso database, and a sensitive m
 
 ## Automated checks
 
-- `npm run typecheck`, targeted ESLint, and `npm test`: passed; 19 tests across seven files.
+- `npm run typecheck`, targeted ESLint, and `npm test`: passed; 21 tests across seven files.
 - `SMOKE_BASE_URL=https://margin-contract-research.vercel.app npm run smoke`: passed against production with the configured model.
 - The production smoke uploaded two DOCX versions, the six-page assignment PDF, a scanned PDF fixture, and a 150-page PDF. It checked processing state, page 120 text and offset lookup, rejection of the scan, a saved single-document answer with a verified quote, a two-document answer with a verified quote from each document, and a High-significance AED 100,000 to AED 1,000,000 change.
 - `/api/health` returned `{ "ok": true }`.
