@@ -14,6 +14,8 @@
 |---|---|---|
 | ![Rendered original PDF page in the live Vercel app](docs/screenshots/pdf-original.png) | ![Verified quote highlighted on the original PDF page](docs/screenshots/pdf-citation.png) | ![Significance-ranked comparison](docs/screenshots/comparison.png) |
 
+The refreshed workspace uses a high-contrast library, a calmer document canvas, larger research typography, and a phone-width library drawer. The responsive upload → reader → research path is covered by the browser suite.
+
 ## What is finished
 
 | Assignment area | Status | Evidence |
@@ -30,13 +32,13 @@
 | Clause-level comparison and significance filter | ✅ Live verified | Production smoke flags AED 100,000 → AED 1,000,000 as High; browser test |
 | Cross-page and repeated quote highlighting | ✅ Browser verified | `tests/quotes.test.ts`; `npm run test:e2e` checks rendered PDF pages 1–2 and a repeated occurrence on page 3 |
 | OCR, exhaustive map-reduce, exported report | ❌ Not built (optional extras or future work) | See limitations |
-| Public live deployment, GitHub link, 3–5 minute recorded demo | ✅ Live app and 3:15 model-backed recording | [Watch the demo](https://margin-contract-research.vercel.app/demo.webm); production `/api/health` and smoke passed |
+| Public live deployment, GitHub link, 3–5 minute recorded demo | ✅ Live app and 3:37 production recording | [Watch the demo](https://margin-contract-research.vercel.app/demo.webm); production `/api/health` and smoke passed |
 
 The complete requirement mapping is in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md). The status table intentionally distinguishes local, mock, and live verification.
 
 [Production verification log](docs/LIVE_VERIFICATION.md) records the checks run against the public URL.
 
-[Watch the 3:15 captioned walkthrough](https://margin-contract-research.vercel.app/demo.webm), captured from the live app with the configured model. A [downloadable copy](docs/demo.webm) is also in the repository. The public video is hosted with the app; the assignment's named video hosts are Loom, Google Drive, or unlisted YouTube.
+[Watch the 3:37 captioned walkthrough](https://margin-contract-research.vercel.app/demo.webm), captured from the redesigned live app with the configured model. It shows a verified DOCX citation, a verified quote highlighted on an original PDF page, occurrence navigation, and a high-significance comparison filter. A [downloadable copy](docs/demo.webm) is also in the repository. The public video is hosted with the app; the assignment's named video hosts are Loom, Google Drive, or unlisted YouTube.
 
 ## How it works
 

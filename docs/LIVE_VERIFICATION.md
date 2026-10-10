@@ -2,12 +2,14 @@
 
 Public URL: https://margin-contract-research.vercel.app
 
+Redesigned production deployment: `dpl_HK9YEy9gi5MccpRaVfVwmQ7EeMfm` (Ready). The 3:37 video was recorded from this deployment.
+
 The Vercel project has a private Blob store, a Turso database, and a sensitive model key connected for production. The key is held in Vercel environment variables and is not in this repository.
 
 ## Automated checks
 
-- `npm run typecheck`, targeted ESLint, and `npm test`: passed; 22 tests across seven files.
-- `npm run test:e2e`: two browser tests passed locally, including a cross-page quote and a repeated occurrence on another page.
+- `npm run lint`, `npm run typecheck`, `npm run build`, and `npm test`: passed; 22 unit tests across seven files. Generated PDF.js worker code is excluded from lint.
+- `npm run test:e2e`: three browser tests passed locally, including a cross-page quote, a repeated occurrence on another page, and a phone-width upload → library → reader path.
 - `SMOKE_BASE_URL=https://margin-contract-research.vercel.app npm run smoke`: passed against production with the configured model.
 - The production smoke uploaded two DOCX versions, the six-page assignment PDF, a scanned PDF fixture, and a 150-page PDF. It checked processing state, page 120 text and offset lookup, rejection of the scan, a saved single-document answer with a verified quote, a two-document answer with a verified quote from each document, and a High-significance AED 100,000 to AED 1,000,000 change.
 - `/api/health` returned `{ "ok": true }`.
@@ -21,5 +23,6 @@ The Vercel project has a private Blob store, a Turso database, and a sensitive m
 - The verified production view is captured in [`screenshots/live-citation.png`](screenshots/live-citation.png).
 - The browser showed live research tool activity and streamed answer text. Stop kept a partial draft, which reopened after a full page reload. Stopped drafts are labelled unverified because the final quote check has not run.
 - The responsive library was inspected at a 390 × 844 viewport during local verification.
+- After the redesign, the public URL returned `200` with `{ "ok": true }` from `/api/health`; the live interface rendered the new visual system. The production recording shows a model-backed DOCX answer with a verified citation, a verified PDF highlight with occurrence navigation, and the comparison filter. The video file was decoded and sampled at six points; its metadata duration is 217.24 seconds.
 
 The synthetic files used for these checks contain no private contracts. Failed and padded-upload test records were removed from production after verification. These checks cover the included fixtures, not every possible PDF/DOCX or model response.

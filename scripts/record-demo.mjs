@@ -19,7 +19,7 @@ function caption(text) {
     if (!element) {
       element = document.createElement('div');
       element.id = 'demo-caption';
-      element.style.cssText = 'position:fixed;z-index:1000;left:50%;bottom:18px;transform:translateX(-50%);max-width:880px;padding:12px 20px;border-radius:10px;background:rgba(12,27,51,.94);color:#fff;font:600 18px/1.35 Arial,sans-serif;text-align:center;box-shadow:0 6px 22px #0003;pointer-events:none';
+      element.style.cssText = 'position:fixed;z-index:1000;left:50%;bottom:20px;transform:translateX(-50%);max-width:930px;padding:13px 22px;border:1px solid #b9eb65;border-radius:11px;background:rgba(12,27,44,.96);color:#fff;font:600 18px/1.4 Arial,sans-serif;text-align:center;box-shadow:0 12px 38px #07152266;pointer-events:none';
       document.body.append(element);
     }
     element.textContent = value;
@@ -34,7 +34,7 @@ async function upload(name) {
 
 try {
   await page.goto(base, { waitUntil: 'networkidle' });
-  await scene('Margin · Contract intelligence, grounded in evidence', 8000);
+  await scene('Margin · Read the clause. Verify the answer.', 8000);
   await scene('Upload PDF or DOCX contracts into a saved library. Processing and errors remain visible.', 9000);
   await upload('msa-v1.docx');
   await scene('The first contract is extracted and ready to research.', 12000);
@@ -52,10 +52,20 @@ try {
 
   await upload('cross-page-duplicate.pdf');
   await page.locator('.pdf-canvas-page canvas').first().waitFor({ timeout: 90000 });
-  await scene('PDFs now open on their original rendered pages, with an extracted-text option beside them.', 17000);
-  await page.getByRole('button', { name: 'Next page' }).click();
-  await page.locator('.pdf-canvas-page canvas').first().waitFor();
-  await scene('Verified citation offsets map onto PDF text positions; cross-page and repeated quotes are covered by browser tests.', 14000);
+  await scene('PDFs open on their original rendered pages, with an extracted-text option beside them.', 12000);
+  await page.getByRole('textbox', { name: 'Ask a question' }).fill('What does the Supplier indemnify the Client for?');
+  await page.getByRole('button', { name: 'Send question' }).click();
+  const pdfEvidence = page.locator('.evidence-card').last();
+  await pdfEvidence.waitFor({ timeout: 90000 });
+  await scene('The quote is checked against this PDF before it receives a Verified badge.', 11000);
+  await pdfEvidence.click();
+  await page.locator('.pdf-citation-highlight').first().waitFor({ timeout: 30000 });
+  await scene('Open the evidence to see the exact passage highlighted on the original PDF.', 14000);
+  if (await page.getByRole('button', { name: 'Next occurrence' }).count()) {
+    await page.getByRole('button', { name: 'Next occurrence' }).click();
+    await page.locator('.pdf-citation-highlight').first().waitFor({ timeout: 30000 });
+    await scene('Repeated wording is navigable, so the reader can inspect each occurrence.', 9000);
+  }
 
   await upload('msa-v2.docx');
   await page.getByRole('button', { name: 'Select msa-v1.docx for multiple document research' }).last().click();
@@ -67,9 +77,9 @@ try {
   await page.getByRole('button', { name: /1 high/i }).click();
   await scene('Filter to high-significance changes and inspect the before and after wording.', 16000);
   await scene('Part C: the bounded multi-round research loop shows each tool step and verifies final quotes.', 13000);
-  await scene('Known limits: scanned PDFs need OCR; unusual PDF text layouts fall back to a clearly labelled extracted-text view.', 15000);
+  await scene('Known limits: scanned PDFs need OCR; unusual PDF layouts use a clearly labelled extracted-text fallback.', 13000);
 
-  const remaining = Math.max(0, 195000 - (Date.now() - started));
+  const remaining = Math.max(0, 210000 - (Date.now() - started));
   if (remaining) await scene('Margin · Live app, source code, setup instructions, and engineering note are linked in the README.', remaining);
   const duration = Math.round((Date.now() - started) / 1000);
   if (duration > 300) throw new Error(`Demo exceeded five minutes: ${duration}s`);

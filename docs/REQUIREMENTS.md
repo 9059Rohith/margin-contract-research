@@ -41,7 +41,7 @@ Source: `hiring assignment.pdf`, six pages. The quoted requirements below retain
 | D1 | "GitHub repository link." | `https://github.com/9059Rohith/margin-contract-research` | remote content check | Finished |
 | D2 | "Deployed link. A working, live version we can open and use." | Vercel, private Blob, Turso adapter | production `/api/health`, full smoke, direct 5.3 MB browser upload, saved citation click | Finished |
 | D3 | "README containing ... Screenshots ... How to run it locally ... What is finished and what is not" | `README.md` | document review | Finished |
-| D4 | "Demo video (3 to 5 minutes)." | 3:15 live model-backed `docs/demo.webm`, `scripts/record-demo.mjs` | browser-playable `/demo.webm`; named Loom/Drive/YouTube host not yet connected | Partial: host format |
+| D4 | "Demo video (3 to 5 minutes)." | 3:37 production recording `docs/demo.webm`, `scripts/record-demo.mjs` | browser-playable `/demo.webm`; named Loom/Drive/YouTube host not yet connected | Partial: host format |
 | D5 | "A short note (half a page) covering ..." | `docs/NOTE.md` | document review | Finished |
 
 ## Traceability rule
