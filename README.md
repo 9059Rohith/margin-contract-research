@@ -32,13 +32,13 @@ The refreshed workspace uses a high-contrast library, a calmer document canvas, 
 | Clause-level comparison and significance filter | ✅ Live verified | Production smoke flags AED 100,000 → AED 1,000,000 as High; browser test |
 | Cross-page and repeated quote highlighting | ✅ Browser verified | `tests/quotes.test.ts`; `npm run test:e2e` checks rendered PDF pages 1–2 and a repeated occurrence on page 3 |
 | OCR, exhaustive map-reduce, exported report | ❌ Not built (optional extras or future work) | See limitations |
-| Public live deployment, GitHub link, 3–5 minute recorded demo | ✅ Live app and 3:37 production recording | [Watch the demo](https://margin-contract-research.vercel.app/demo.webm); production `/api/health` and smoke passed |
+| Public live deployment, GitHub link, 3–5 minute recorded demo | ✅ Live app and 3:37 narrated production recording | [Watch the Google Drive demo](https://drive.google.com/file/d/1Kn3XTk8AifESHZtr6lFynVqfSkDcKJJM/view); production `/api/health` and smoke passed |
 
 The complete requirement mapping is in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md). The status table intentionally distinguishes local, mock, and live verification.
 
 [Production verification log](docs/LIVE_VERIFICATION.md) records the checks run against the public URL.
 
-[Watch the 3:37 captioned walkthrough](https://margin-contract-research.vercel.app/demo.webm), captured from the redesigned live app with the configured model. It shows a verified DOCX citation, a verified quote highlighted on an original PDF page, occurrence navigation, and a high-significance comparison filter. A [downloadable copy](docs/demo.webm) is also in the repository. The public video is hosted with the app; the assignment's named video hosts are Loom, Google Drive, or unlisted YouTube.
+[Watch the 3:37 narrated walkthrough on Google Drive](https://drive.google.com/file/d/1Kn3XTk8AifESHZtr6lFynVqfSkDcKJJM/view). The [direct MP4](https://margin-contract-research.vercel.app/demo.mp4) is a playback fallback, and [demo.mp4](docs/demo.mp4) and [subtitles](docs/demo.srt) are in the repository. The recording uses the live app and configured model. It shows a verified DOCX citation, a verified quote highlighted on an original PDF page, occurrence navigation, and a high-significance comparison filter. Subtitles are burned into the video and also available as [WebVTT](https://margin-contract-research.vercel.app/demo.vtt).
 
 ## How it works
 
@@ -80,6 +80,8 @@ npm test
 npm run smoke
 npm run screenshots
 npm run record:demo
+python -m pip install edge-tts pydub imageio-ffmpeg
+python scripts/narrate-demo.py
 ```
 
 The smoke command expects a running app and uses generated DOCX fixtures plus a 150-page PDF fixture. If the assignment PDF is present at `hiring assignment.pdf`, it also checks that file. `SMOKE_BASE_URL` overrides the default local URL.

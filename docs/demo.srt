@@ -1,0 +1,147 @@
+1
+00:00:05,715 --> 00:00:08,600
+Meet Margin: a contract research workspace
+
+2
+00:00:08,640 --> 00:00:10,652
+for answers you can verify.
+
+3
+00:00:13,722 --> 00:00:16,820
+Upload PDF or Word contracts. Each
+
+4
+00:00:16,860 --> 00:00:20,222
+document is saved with a clear processing status.
+
+5
+00:00:23,639 --> 00:00:26,462
+The first agreement is ready. Let us ask
+
+6
+00:00:26,502 --> 00:00:28,252
+about its liability cap.
+
+7
+00:00:35,672 --> 00:00:38,557
+Ask a question in plain language. The agent
+
+8
+00:00:38,597 --> 00:00:40,870
+searches the contract and reads the relevant
+
+9
+00:00:40,910 --> 00:00:41,747
+clause.
+
+10
+00:00:43,725 --> 00:00:46,010
+The research steps appear live, so you can see
+
+11
+00:00:46,050 --> 00:00:47,375
+what the agent checked.
+
+12
+00:00:50,718 --> 00:00:53,628
+A quote is marked verified only after Margin
+
+13
+00:00:53,668 --> 00:00:55,718
+finds it in this exact document.
+
+14
+00:01:06,757 --> 00:01:08,954
+Open the citation to jump directly to the
+
+15
+00:01:08,994 --> 00:01:10,270
+matching wording.
+
+16
+00:01:23,905 --> 00:01:26,728
+PDFs open on their original pages, with
+
+17
+00:01:26,768 --> 00:01:29,330
+an extracted text option beside them.
+
+18
+00:01:42,407 --> 00:01:44,854
+Now the evidence is checked against this PDF
+
+19
+00:01:44,894 --> 00:01:46,944
+before it appears as verified.
+
+20
+00:01:53,499 --> 00:01:56,284
+The original PDF opens at the cited passage
+
+21
+00:01:56,324 --> 00:01:57,936
+with a precise highlight.
+
+22
+00:02:07,554 --> 00:02:10,539
+When wording repeats, move between occurrences
+
+23
+00:02:10,579 --> 00:02:12,392
+to inspect the right one.
+
+24
+00:02:16,981 --> 00:02:19,778
+Select two contract versions for a clause level
+
+25
+00:02:19,818 --> 00:02:20,918
+comparison.
+
+26
+00:02:29,015 --> 00:02:31,412
+The liability cap rises from one hundred
+
+27
+00:02:31,452 --> 00:02:34,312
+thousand to one million dirhams, and the change
+
+28
+00:02:34,352 --> 00:02:36,290
+is ranked by significance.
+
+29
+00:02:47,060 --> 00:02:49,782
+Filter to high significance changes and inspect
+
+30
+00:02:49,822 --> 00:02:51,848
+the before and after wording.
+
+31
+00:03:03,062 --> 00:03:05,660
+The multi-round research loop shows each tool
+
+32
+00:03:05,700 --> 00:03:08,900
+step and verifies quotes in the final answer.
+
+33
+00:03:16,063 --> 00:03:19,073
+Known limits: scanned PDFs need OCR,
+
+34
+00:03:19,113 --> 00:03:21,573
+and unusual layouts may use a labelled text
+
+35
+00:03:21,613 --> 00:03:22,526
+fallback.
+
+36
+00:03:29,067 --> 00:03:31,890
+The live app, source code, setup steps,
+
+37
+00:03:31,930 --> 00:03:34,804
+and engineering note are linked in the README.
