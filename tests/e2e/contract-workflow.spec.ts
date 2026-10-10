@@ -1,5 +1,7 @@
 import path from 'node:path';
 import { test,expect } from '@playwright/test';
+import { verifyQuote } from '../../src/lib/quotes/matcher';
+import type { Citation,DocumentRecord } from '../../src/types/app';
 
 const fixture=(name:string)=>path.resolve('tests','fixtures',name);
 
@@ -24,4 +26,39 @@ test('upload, research with verified quote, and compare two contracts',async({pa
   await expect(page.getByRole('dialog',{name:'Document comparison'})).toBeVisible();
   await expect(page.locator('.change-row:has(.significance.high)')).toHaveCount(1);
   await expect(page.locator('.comparison-summary')).toContainText('high-significance');
+});
+
+test('cross-page and repeated quotes open the correct passages',async({page})=>{
+  await page.goto('/');
+  await page.locator('#upload-input').setInputFiles(fixture('cross-page-duplicate.pdf'));
+  await expect(page.getByRole('heading',{name:'cross-page-duplicate.pdf'})).toBeVisible();
+  await expect(page.locator('.reader-header .status-badge')).toContainText('Ready');
+  const documents=(await (await page.request.get('/api/documents')).json()).documents as DocumentRecord[];
+  const doc=documents.find(item=>item.name==='cross-page-duplicate.pdf');
+  expect(doc).toBeDefined();
+  if(!doc)throw new Error('Fixture was not stored');
+  const extracted=await Promise.all([1,2,3].map(async number=>await (await page.request.get(`/api/documents/${doc.id}/text?page=${number}`)).json()));
+  const quote='The Supplier shall indemnify the Client for claims arising from breach of confidentiality.';
+  const index={text:extracted.map(item=>item.page.text).join('\n'),pages:extracted.map(item=>({start:item.page.start_offset,end:item.page.end_offset,page:item.page.page_no,id:item.page.id})),blocks:extracted.flatMap(item=>item.blocks.map((block:{start_offset:number;end_offset:number;page_no:number;id:string})=>({start:block.start_offset,end:block.end_offset,page:block.page_no,id:block.id})))};
+  const result=verifyQuote(index,quote);
+  expect(result.verified).toBe(true);
+  if(!result.verified)throw new Error('Cross-page fixture quote was not verified');
+  expect(result.pages).toEqual([1,2]);
+  expect(result.occurrences).toHaveLength(2);
+  const citation:Citation={id:'Q1',docId:doc.id,documentName:doc.name,quote,result};
+  const conversation={id:'eeeeeeee-eeee-4eee-eeee-eeeeeeeeeeee',title:'Cross-page evidence',scope:'single',created_at:new Date().toISOString()};
+  await page.route(/\/api\/conversations\?docId=/,route=>route.fulfill({json:{conversations:[conversation]}}));
+  await page.route(`**/api/conversations/${conversation.id}`,route=>route.fulfill({json:{conversation,documents:[doc],messages:[{id:'user',role:'user',content:'What does the indemnity say?',status:'complete',citations:[]},{id:'assistant',role:'assistant',content:'The indemnity applies to confidentiality claims [Q1].',status:'complete',citations:[citation],coverage:{mode:'agentic',coverage_pct:100,budget_exhausted:false,rounds_used:2,notes:''}}]}}));
+  await page.reload();
+  await expect(page.getByRole('button',{name:'Cross-page evidence'})).toBeVisible();
+  await page.getByRole('button',{name:'Cross-page evidence'}).click();
+  await page.locator('.evidence-card').click();
+  await expect(page.locator('mark[data-citation-target="true"]')).toHaveCount(2);
+  const marked=await page.locator('mark[data-citation-target="true"]').allTextContents();
+  expect(marked.join(' ').replace(/\s+/g,' ').trim()).toBe(quote);
+  await expect(page.locator('.occurrence-bar')).toContainText('1 of 2');
+  await page.getByRole('button',{name:'Next occurrence'}).click();
+  await expect(page.locator('.page-controls')).toContainText('3 / 3');
+  await expect(page.locator('mark[data-citation-target="true"]')).toHaveCount(1);
+  await expect(page.locator('mark[data-citation-target="true"]')).toHaveText(quote);
 });

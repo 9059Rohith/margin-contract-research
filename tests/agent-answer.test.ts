@@ -14,5 +14,6 @@ describe('answer evidence gate',()=>{
     expect(sanitizeAnswer('The cap is unlimited [Q2].',[citation],coverage,'answered')).toMatch(/could not verify/i);
     expect(sanitizeAnswer('[Q1]',[citation],coverage,'answered')).toMatch(/could not verify/i);
     expect(sanitizeAnswer('The contract does not contain a termination clause [Q1].',[citation],coverage,'answered')).toMatch(/cannot confirm it is absent/i);
+    expect(sanitizeAnswer('The contract does not contain a termination clause [Q1].',[citation],{...coverage,coverage_pct:100,budget_exhausted:true},'answered')).toMatch(/cannot confirm it is absent/i);
   });
 });

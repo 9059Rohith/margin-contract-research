@@ -54,6 +54,7 @@ function partialAnswer(raw:string):string {
 }
 export function sanitizeAnswer(answer:string,citations:Citation[],coverage:Coverage,status:string):string {
   const verified=citations.filter(c=>c.result.verified);
+  const incomplete=coverage.coverage_pct<100||coverage.budget_exhausted;
   const verifiedIds=new Set(verified.map(c=>c.id));
   const content=answer.split(/(?<=\])\s+(?=[A-Z])|(?<=[.!?])\s+(?=[A-Z(])|\n{2,}/).filter(sentence=>{
     const markers=[...sentence.matchAll(/\[([A-Za-z0-9_-]+)\]/g)];
@@ -61,9 +62,9 @@ export function sanitizeAnswer(answer:string,citations:Citation[],coverage:Cover
     if(verified.length>0 && (status==='answered'||status==='partial_coverage') && markers.length===0)return false;
     return true;
   }).join(' ');
-  if(!verified.length && status==='answered')return coverage.coverage_pct<100?'I could not verify an answer in the passages examined. The document has not been read in full.':'I could not find a verifiable answer in this document.';
+  if(!verified.length && status==='answered')return coverage.coverage_pct<100?'I could not verify an answer in the passages examined. The document has not been read in full.':coverage.budget_exhausted?'The search ended before a supported answer could be verified.':'I could not find a verifiable answer in this document.';
   if(!content.replace(/\[[A-Za-z0-9_-]+\]/g,'').replace(/[\s*_#.,;:()]/g,'').trim())return 'I could not verify a supported answer from this document.';
-  if((status==='not_found_in_document'||/\b(?:no clause|does not contain|is silent on)\b/i.test(content)) && coverage.coverage_pct<100) {
+  if((status==='not_found_in_document'||/\b(?:no clause|does not contain|is silent on)\b/i.test(content)) && incomplete) {
     return 'I did not find this in the passages examined. I cannot confirm it is absent from the full document.';
   }
   return content.replace(/\[([A-Za-z0-9_-]+)\]/g,(all,id:string)=>verified.some(c=>c.id===id)?all:'');
@@ -188,7 +189,8 @@ export async function research(question:string,docIds:string[],emit:Event,signal
     if(invalidStreak>=3){budgetExhausted=true;break;}
     if(tokensUsed>=env.AGENT_MAX_TOKENS_BUDGET-1800 || JSON.stringify(messages).length/4>env.AGENT_MAX_TOKENS_BUDGET){budgetExhausted=true;break;}
   }
-  if(rounds>env.AGENT_MAX_ROUNDS){rounds=env.AGENT_MAX_ROUNDS;budgetExhausted=true;}
+  const roundCapHit=rounds>env.AGENT_MAX_ROUNDS;
+  if(roundCapHit){rounds=env.AGENT_MAX_ROUNDS;budgetExhausted=true;}
   if(timeLeft()===0 || tokensUsed>=env.AGENT_MAX_TOKENS_BUDGET){const content='Search budget exhausted; answer may be incomplete. Please try a narrower question.';emit({type:'delta',text:content});return {content,citations:[],coverage:coverage(),status:'complete'};}
   emit({type:'status',phase:'draft',text:'Writing answer and checking evidence…'});
   messages.push({role:'system',content:`Return ONLY JSON with keys in this order: answer_markdown (string with [Q1] citation markers), answer_status (answered|not_found_in_document|partial_coverage|needs_clarification), quotes (array of {id,doc_id,quote}). Every substantive sentence must cite a verbatim quote. Use only evidence from tool results. ${docs.length>1?'Compare the documents directly: lead with a synthesis, explain material differences, and attribute each quote to its own document.':''} If evidence is insufficient, state the limit. ${budgetExhausted?'The search budget was exhausted. Say the answer may be incomplete.':''}`});
@@ -221,7 +223,8 @@ export async function research(question:string,docIds:string[],emit:Event,signal
   const sanitized=sanitizeAnswer(canonical.answer,citations,coverage(),parsed.data.answer_status);
   const citedIds=new Set([...sanitized.matchAll(/\[([A-Za-z0-9_-]+)\]/g)].map(match=>match[1]));
   const comparesAll=docIds.length===1||docIds.every(id=>citations.some(c=>c.docId===id&&c.result.verified&&citedIds.has(c.id)));
-  const content=!comparesAll||sanitized==='I could not verify a supported answer from this document.'?verifiedEvidenceFallback(citations,docIds):sanitized;
+  const grounded=!comparesAll||sanitized==='I could not verify a supported answer from this document.'?verifiedEvidenceFallback(citations,docIds):sanitized;
+  const content=roundCapHit&&!/search budget exhausted/i.test(grounded)?`${grounded}\n\nSearch budget exhausted; answer may be incomplete.`:grounded;
   emit({type:'replace',text:content});
   return {content,citations,coverage:coverage(),status:'complete'};
 }

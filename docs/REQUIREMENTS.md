@@ -22,7 +22,7 @@ Source: `hiring assignment.pdf`, six pages. The quoted requirements below retain
 | A16 | "A 150-page contract must work." | PDF extraction/page cap, FTS chunks | large fixture | Finished |
 | A17 | "if your app only read part of a document, it must not answer as though it read all of it." | coverage read ranges, negative claim guard | production 150-page negative question; agent test | Finished |
 | B5 | "Clicking a quote in an answer opens the document, scrolls to that passage and highlights it." | `Reader.tsx` | `tests/e2e/contract-workflow.spec.ts` | Finished |
-| B5a | "Handle quotes that span multiple lines, cross a page break, or appear more than once." | matcher segments, occurrence navigator | quote unit test/browser | Partial |
+| B5a | "Handle quotes that span multiple lines, cross a page break, or appear more than once." | matcher segments, occurrence navigator | quote unit test; browser test spanning pages 1–2 and repeated on page 3 | Finished |
 | B6 | "The user selects several documents and asks one question across all of them." | library selection, multi scope | production two-document smoke | Finished |
 | B6a | "Each quote identifies which document it came from." | citation schema/card | browser walkthrough | Finished |
 | B6b | "The answer compares across documents rather than listing separate answers." | multi scope prompt and grounded comparison fallback | production smoke asserts both cap amounts | Finished |
@@ -33,7 +33,7 @@ Source: `hiring assignment.pdf`, six pages. The quoted requirements below retain
 | B7c | "Filter or sort by how significant a change is." | significance filter and ordered results | browser walkthrough | Finished |
 | C2a | "A real multi-round loop: the model can call tools, read results, and call more." | `src/lib/agent/loop.ts` | scripted provider and live browser multi-round research | Finished |
 | C2b | "Show what it is doing as it happens ... not a spinner." | SSE tool/status events and activity timeline | live browser showed search/page-read steps | Finished |
-| C2c | "A hard cap on rounds, so it cannot loop forever or run up an unbounded bill." | `AGENT_MAX_ROUNDS`, token budget | loop test | Partial |
+| C2c | "A hard cap on rounds, so it cannot loop forever or run up an unbounded bill." | `AGENT_MAX_ROUNDS`, token budget | endless-tool mock test checks the round cap and explicit limit text | Finished |
 | C2d | "Malformed or invented tool calls ... handled without crashing the request." | zod tool validation | `tests/agent-tools.test.ts` | Finished |
 | C2e | "Verified quotes still apply to the final answer." | final verification | production single and multi-document smoke | Finished |
 | S1 | "Read the API key, base URL and model name from environment variables." | `src/lib/env.ts` | config inspection | Finished |
@@ -46,4 +46,4 @@ Source: `hiring assignment.pdf`, six pages. The quoted requirements below retain
 
 ## Traceability rule
 
-The table is the traceability matrix: ID → implementation → test/verification → status. A row moves to Finished only after the named check passes. Partial and unavailable items stay explicit in the README.
+The table is the traceability matrix: ID → implementation → test/verification → status. A row moves to Finished only after the named check passes. Additional ambitions from the separate master build prompt remain explicitly identified in the README.

@@ -23,12 +23,12 @@
 | 150-page ingestion and page-120 text access | ✅ Live verified | Production smoke; 5.3 MB direct browser upload |
 | Quote verification, whitespace/Unicode mapping, wrong-document and amount-tampering rejection | ✅ Unit verified | `tests/quotes.test.ts` |
 | Citation click to exact extracted passage | ✅ Live browser verified for DOCX | Saved quote opened and highlighted the exact passage; local browser test |
-| Agentic five-tool loop, malformed-call handling and caps | ✅ Live loop and mock tests; cap edge cases need wider fault testing | Production chat showed multiple read-only tool rounds; unit tests |
+| Agentic five-tool loop, malformed-call handling and caps | ✅ Live loop and mock verified | Production chat showed multiple read-only tool rounds; endless-loop test enforces the cap and disclosure |
 | Streaming answer and Stop with saved partial | ✅ Live browser verified | Stopped a streaming draft and reopened it after a reload; `tests/chat-stop.test.ts` |
 | Saved chat history | ✅ Live verified | Production smoke and browser reopen |
 | Multi-document comparative answers | ✅ Live verified for two DOCX versions | Production smoke requires both amounts and a verified quote from each document |
 | Clause-level comparison and significance filter | ✅ Live verified | Production smoke flags AED 100,000 → AED 1,000,000 as High; browser test |
-| Cross-page and repeated quote highlighting | ⚠️ Matcher unit tested; full browser flow unverified | `tests/quotes.test.ts` |
+| Cross-page and repeated quote highlighting | ✅ Browser verified | `tests/quotes.test.ts`; `npm run test:e2e` checks pages 1–2 and a repeated occurrence on page 3 |
 | Original PDF page overlay, OCR, exhaustive map-reduce, exported report | ❌ Not built | See limitations |
 | Public live deployment, GitHub link, 3–5 minute recorded demo | ✅ Live URL and existing 3:27 captioned demo | Production `/api/health` and smoke passed; [download the demo](docs/demo.webm) |
 

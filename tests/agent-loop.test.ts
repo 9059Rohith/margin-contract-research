@@ -12,6 +12,7 @@ let server:http.Server;
 let port:number;
 let calls=0;
 let invalidDraft=false;
+let endlessTools=false;
 
 beforeAll(async()=>{
   process.env.DATA_DIR=fs.mkdtempSync(path.join(os.tmpdir(),'margin-agent-'));
@@ -27,7 +28,7 @@ beforeAll(async()=>{
       res.end('data: [DONE]\n\n');return;
     }
     const toolCount=parsed.messages.filter(m=>m.role==='tool').length;
-    const tool=toolCount===0?{name:'search_document',arguments:JSON.stringify({query:'liability cap',top_k:2,doc_id:docId})}:toolCount===1?{name:'get_page',arguments:JSON.stringify({page:1,doc_id:docId})}:null;
+    const tool=endlessTools?{name:'list_clauses',arguments:JSON.stringify({doc_id:docId})}:toolCount===0?{name:'search_document',arguments:JSON.stringify({query:'liability cap',top_k:2,doc_id:docId})}:toolCount===1?{name:'get_page',arguments:JSON.stringify({page:1,doc_id:docId})}:null;
     const message=tool?{role:'assistant',content:null,tool_calls:[{id:`call_${toolCount}`,type:'function',function:tool}]}:{role:'assistant',content:'Evidence gathered.'};
     res.end(JSON.stringify({id:'chatcmpl-test',object:'chat.completion',created:1,model:'mock',choices:[{index:0,message,finish_reason:tool?'tool_calls':'stop'}]}));
   });
@@ -85,5 +86,18 @@ describe('agent loop with scripted provider',()=>{
       expect(result.content).toContain('AED 100,000');
       expect(result.content).toContain('AED 1,000,000');
     } finally { invalidDraft=false; }
+  });
+  it('caps an endless tool loop and discloses the limit',async()=>{
+    const {env}=await import('../src/lib/env');
+    const original=env.AGENT_MAX_ROUNDS;
+    env.AGENT_MAX_ROUNDS=2;
+    endlessTools=true;
+    try {
+      const {research}=await import('../src/lib/agent/loop');
+      const result=await research('What is the liability cap?',[docId],()=>{},new AbortController().signal);
+      expect(result.coverage.rounds_used).toBe(2);
+      expect(result.coverage.budget_exhausted).toBe(true);
+      expect(result.content).toMatch(/search budget exhausted/i);
+    } finally {env.AGENT_MAX_ROUNDS=original;endlessTools=false;}
   });
 });
