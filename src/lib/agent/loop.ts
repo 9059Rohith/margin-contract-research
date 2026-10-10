@@ -12,6 +12,11 @@ export type Coverage={mode:'agentic'|'retrieval';total_chars:number;read_ranges:
 export type Answer={content:string;citations:Citation[];coverage:Coverage;status:string};
 type Event=(event:{type:string;[key:string]:unknown})=>void;
 
+function logModelFailure(phase:string,error:unknown) {
+  const failure=error as {name?:string;status?:number;code?:string;type?:string};
+  console.error('model_failure', {phase,name:failure?.name,status:failure?.status,code:failure?.code,type:failure?.type});
+}
+
 function unionLength(ranges:ReadRange[]):number {
   let total=0;
   for(const docId of new Set(ranges.map(r=>r.docId))){
@@ -114,8 +119,8 @@ export async function research(question:string,docIds:string[],emit:Event,signal
     if(timeLeft()===0){budgetExhausted=true;break;}
     emit({type:'status',phase:'research',text:`Research round ${rounds} of ${env.AGENT_MAX_ROUNDS}…`});
     let response:OpenAI.Chat.Completions.ChatCompletion;
-    try{response=await client.chat.completions.create({model:env.LLM_MODEL,messages,tools:toolDefinitions.map(t=>({type:'function' as const,function:t})),tool_choice:'auto',temperature:0,max_tokens:Math.min(1200,env.AGENT_MAX_TOKENS_BUDGET-tokensUsed)}, {signal:limitedSignal()});}
-    catch(error){if(signal.aborted)throw error;budgetExhausted=true;break;}
+    try{response=await client.chat.completions.create({model:env.LLM_MODEL,messages,tools:toolDefinitions.map(t=>({type:'function' as const,function:t})),tool_choice:'auto',parallel_tool_calls:false,temperature:0,max_tokens:Math.min(1200,env.AGENT_MAX_TOKENS_BUDGET-tokensUsed)}, {signal:limitedSignal()});}
+    catch(error){if(signal.aborted)throw error;logModelFailure('research',error);budgetExhausted=true;break;}
     tokensUsed+=response.usage?.total_tokens??Math.ceil(JSON.stringify(response).length/4);
     const choice=response.choices[0]?.message;
     if(!choice)break;
@@ -141,7 +146,7 @@ export async function research(question:string,docIds:string[],emit:Event,signal
   messages.push({role:'system',content:`Return ONLY JSON with keys in this order: answer_markdown (string with [Q1] citation markers), answer_status (answered|not_found_in_document|partial_coverage|needs_clarification), quotes (array of {id,doc_id,quote}). Every substantive sentence must cite a verbatim quote. Use only evidence from tool results. ${docs.length>1?'Compare the documents directly: lead with a synthesis, explain material differences, and attribute each quote to its own document.':''} If evidence is insufficient, state the limit. ${budgetExhausted?'The search budget was exhausted. Say the answer may be incomplete.':''}`});
   let raw='',emitted='';
   try{
-    const stream=await client.chat.completions.create({model:env.LLM_MODEL,messages,tool_choice:'none',temperature:0,max_tokens:Math.min(1800,env.AGENT_MAX_TOKENS_BUDGET-tokensUsed),stream:true}, {signal:limitedSignal()});
+    const stream=await client.chat.completions.create({model:env.LLM_MODEL,messages,temperature:0,max_tokens:Math.min(1800,env.AGENT_MAX_TOKENS_BUDGET-tokensUsed),stream:true}, {signal:limitedSignal()});
     for await (const part of stream) {
       if(signal.aborted)throw new DOMException('Stopped','AbortError');
       raw+=part.choices[0]?.delta?.content??'';
@@ -150,6 +155,7 @@ export async function research(question:string,docIds:string[],emit:Event,signal
     }
   }catch(error){
     if(signal.aborted)throw error;
+    logModelFailure('draft',error);
     budgetExhausted=true;
     const content='Search budget exhausted; answer may be incomplete. The response could not be verified.';
     emit({type:'replace',text:content});
