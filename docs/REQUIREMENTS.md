@@ -41,7 +41,7 @@ Source: `hiring assignment.pdf`, six pages. The quoted requirements below retain
 | D1 | "GitHub repository link." | `https://github.com/9059Rohith/margin-contract-research` | remote content check | Finished |
 | D2 | "Deployed link. A working, live version we can open and use." | Docker/Railway config | local production smoke passed; Railway workspace rejected creation | Blocked externally |
 | D3 | "README containing ... Screenshots ... How to run it locally ... What is finished and what is not" | `README.md` | document review | Finished |
-| D4 | "Demo video (3 to 5 minutes)." | `docs/DEMO_SCRIPT.md` | recording | Not done |
+| D4 | "Demo video (3 to 5 minutes)." | `docs/demo.webm`, `scripts/record-demo.mjs` | captioned production recording | Finished |
 | D5 | "A short note (half a page) covering ..." | `docs/NOTE.md` | document review | Finished |
 
 ## Traceability rule

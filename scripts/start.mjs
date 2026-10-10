@@ -3,6 +3,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const root=process.cwd();
+process.env.DATA_DIR??=path.join(root,'data');
 const standalone=path.join(root,'.next','standalone');
 const staticSource=path.join(root,'.next','static');
 const staticTarget=path.join(standalone,'.next','static');

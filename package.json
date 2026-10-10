@@ -13,7 +13,8 @@
     "test:e2e": "playwright test",
     "gen:fixtures": "node scripts/gen-fixtures.mjs",
     "smoke": "node scripts/smoke.mjs",
-    "screenshots": "node scripts/screenshots.mjs"
+    "screenshots": "node scripts/screenshots.mjs",
+    "record:demo": "node scripts/record-demo.mjs"
   },
   "dependencies": {
     "better-sqlite3": "13.0.3",

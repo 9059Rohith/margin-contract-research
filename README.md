@@ -30,9 +30,11 @@
 | Clause-level comparison and significance filter | ✅ Locally verified | `tests/compare.test.ts`, `npm run smoke`, browser walkthrough |
 | Cross-page and repeated quote highlighting | ⚠️ Matcher unit tested; full browser flow unverified | `tests/quotes.test.ts` |
 | Original PDF page overlay, OCR, exhaustive map-reduce, exported report | ❌ Not built | See limitations |
-| Public live deployment, GitHub link, 3–5 minute recorded demo | ⚠️ Repository delivered; deployment and recording not delivered | Railway workspace restriction; recording plan in `docs/DEMO_SCRIPT.md` |
+| Public live deployment, GitHub link, 3–5 minute recorded demo | ⚠️ Repository and captioned demo delivered; deployment blocked | [Watch the demo](docs/demo.webm); Railway workspace restriction |
 
 The complete requirement mapping is in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md). The status table intentionally distinguishes local, mock, and live verification.
+
+[Watch the 3½-minute captioned walkthrough](docs/demo.webm). It uses the production build and explicitly labels the no-key chat fallback.
 
 ## How it works
 
@@ -73,6 +75,7 @@ npm run typecheck
 npm test
 npm run smoke
 npm run screenshots
+npm run record:demo
 ```
 
 The smoke command expects a running app and uses generated DOCX fixtures plus a 150-page PDF fixture. If the assignment PDF is present at `hiring assignment.pdf`, it also checks that file. `SMOKE_BASE_URL` overrides the default local URL.
@@ -98,3 +101,5 @@ The API validates file content and size, stores uploads under UUID filenames, ch
 Known limits: no OCR; no original PDF canvas overlay; partial scans are not identified page by page; DOCX tables and numbering can differ from Word's layout; FTS5 retrieval is not an exhaustive search; quote verification can reject true quotes when extraction loses characters; a repeated quote may be ambiguous; the in-process worker is recoverable on the next document-list request but has no distributed lease; and comparison alignment/significance are heuristics. Live-model behavior depends on the configured provider and has only been tested against a scripted OpenAI-compatible mock here.
 
 See [engineering decisions](docs/DECISIONS.md), [architecture](docs/ARCHITECTURE.md), [API](docs/API.md), [half-page note](docs/NOTE.md), and [recording plan](docs/DEMO_SCRIPT.md).
+
+The verification workflow is supplied as [docs/ci-template.yml](docs/ci-template.yml). The GitHub credential on this machine lacks the `workflow` scope needed to place it under `.github/workflows/`; move it there when using a credential with that scope.

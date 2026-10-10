@@ -1,4 +1,6 @@
-# Four-minute demo recording plan
+# Demo recording and narration plan
+
+The submitted [captioned walkthrough](demo.webm) was captured from the local production build with `npm run record:demo`. It lasts about 3½ minutes and shows the no-key extractive fallback honestly. The outline below is a guide for a future narrated run with a configured provider; it includes additional flows beyond the submitted recording.
 
 Record a 3–5 minute screen capture at 1440×900 or similar, with the app and browser address visible. Use the generated fixtures in `tests/fixtures`. The narration below distinguishes verified behavior from features that need a configured model.
 
